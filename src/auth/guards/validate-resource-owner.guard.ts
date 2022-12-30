@@ -1,9 +1,8 @@
 import { ForbiddenException } from '@nestjs/common';
-import { Types } from 'mongoose';
 import { UserDocument } from '../entities/user.entity';
 import { ValidRoles } from '../interfaces';
 interface MongoObject {
-    _id: Types.ObjectId;
+    _id: any;
     [k: string]: any;
 }
 export const ValidateResourceOwner = (
@@ -11,9 +10,12 @@ export const ValidateResourceOwner = (
     resourse: MongoObject,
     keyUser: string,
 ) => {
+    const rolesWithAccessToOtherResources = [ValidRoles.admin];
     if (
-        user._id != resourse[keyUser].toString() &&
-        !user.roles.includes(ValidRoles.admin)
+        user._id != resourse[keyUser] &&
+        !user.roles.some((role) =>
+            rolesWithAccessToOtherResources.includes(role),
+        )
     )
         throw new ForbiddenException(
             'El usuario no es el propietario de este recurso ni tiene los permisos para acceder al recurso',

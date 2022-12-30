@@ -1,3 +1,5 @@
+export const LIMIT_ALTERNATIVE = 50;
+export const OFFSET_ALTERNATIVE = 0;
 export const EnvConfiguration = () => ({
     SECRET_KEY: process.env.SECRET_KEY || 'SecretKey',
     NODE_ENV: process.env.NODE_ENV || 'development',
@@ -9,4 +11,6 @@ export const EnvConfiguration = () => ({
     MONGO_PASSWORD_TEST: process.env.MONGO_PASSWORD_TEST,
     AUTH_SOURCE_DEVELOPMENT: process.env.AUTH_SOURCE_DEVELOPMENT,
     AUTH_SOURCE_TEST: process.env.AUTH_SOURCE_TEST,
+    LIMIT: +process.env.LIMIT || LIMIT_ALTERNATIVE,
+    OFFSET: +process.env.OFFSET || OFFSET_ALTERNATIVE,
 });

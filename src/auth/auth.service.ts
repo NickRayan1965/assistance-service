@@ -7,16 +7,32 @@ import { JwtPayload } from './interfaces';
 import { JwtService } from '@nestjs/jwt';
 import { User } from './entities/user.entity';
 import { handleExceptions } from '../common/errors/handleExceptions';
+import { replaceDoubleSpacesAndTrim } from 'src/common/func/replaceDoubleSpacesAndTrim.func';
+import { WorkPositionRepository } from 'src/work-position/work-position.repository';
 @Injectable()
 export class AuthService {
+    private readonly nameEntity = User.name;
     constructor(
         private readonly userRepository: UserRepository,
         private readonly jwtService: JwtService,
+        private readonly workPositionRepository: WorkPositionRepository,
     ) {}
     async registerUser(
         createUserDto: CreateUserDto,
     ): Promise<CreateOrLoginResponseDto> {
+        await this.workPositionRepository.findById(createUserDto.work_position);
         createUserDto.password = bcrypt.hashSync(createUserDto.password, 10);
+        createUserDto.createdAt = new Date();
+        createUserDto.updatedAt = createUserDto.createdAt;
+        createUserDto.phone_number = replaceDoubleSpacesAndTrim(
+            createUserDto.phone_number,
+        );
+        createUserDto.firstnames = replaceDoubleSpacesAndTrim(
+            createUserDto.firstnames.toUpperCase(),
+        );
+        createUserDto.lastnames = replaceDoubleSpacesAndTrim(
+            createUserDto.lastnames.toUpperCase(),
+        );
         try {
             const user = await this.userRepository.create(createUserDto);
             const createUserResponse: CreateOrLoginResponseDto = {
@@ -25,7 +41,7 @@ export class AuthService {
             };
             return createUserResponse;
         } catch (error) {
-            handleExceptions(error, User.name);
+            handleExceptions(error, this.nameEntity);
         }
     }
 

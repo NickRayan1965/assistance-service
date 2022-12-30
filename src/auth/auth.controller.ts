@@ -28,8 +28,8 @@ export class AuthController {
         status: HttpStatus.FORBIDDEN,
         description: 'El Usuario necesita un rol válido para este endpoint',
     })
-    @Post('register')
     @Auth(ValidRoles.admin)
+    @Post('register')
     register(@Body() createAuthDto: CreateUserDto) {
         return this.authService.registerUser(createAuthDto);
     }
@@ -38,8 +38,8 @@ export class AuthController {
         type: CreateOrLoginResponseDto,
         description: 'Inicio de sesión correcto',
     })
-    @Post('login')
     @HttpCode(HttpStatus.OK)
+    @Post('login')
     login(@Body() loginUserDto: LoginUserDto) {
         return this.authService.loginUser(loginUserDto);
     }
