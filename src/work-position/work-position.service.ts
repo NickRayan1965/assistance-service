@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateWorkPositionDto } from './dto/create-work-position.dto';
 import { UpdateWorkPositionDto } from './dto/update-work-position.dto';
 import { WorkPositionRepository } from './work-position.repository';
@@ -15,11 +15,18 @@ export class WorkPositionService {
     constructor(
         private readonly workPositionRepository: WorkPositionRepository,
     ) {}
-    create(
+    async create(
         createWorkPositionDto: CreateWorkPositionDto,
     ): Promise<WorkPositionDocument> {
+        if (
+            createWorkPositionDto.work_start_time >=
+            createWorkPositionDto.work_end_time
+        )
+            throw new BadRequestException(
+                'La hora de inicio no puede ser igual o mayor a la hora final',
+            );
         try {
-            const work_position = this.workPositionRepository.create(
+            const work_position = await this.workPositionRepository.create(
                 createWorkPositionDto,
             );
             return work_position;
@@ -43,7 +50,7 @@ export class WorkPositionService {
     }
 
     findById(id: string): Promise<WorkPositionDocument> {
-        return this.workPositionRepository.findById(id);
+        return this.workPositionRepository.findById(id, true);
     }
 
     async update(
@@ -55,6 +62,7 @@ export class WorkPositionService {
                 await this.workPositionRepository.findByIdAndUpdate(
                     id,
                     updateWorkPositionDto,
+                    true,
                 );
             return work_position_updated;
         } catch (error) {

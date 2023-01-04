@@ -10,6 +10,7 @@ export const handleExceptions = (error: any, nameEntity: string): never => {
                 error.keyValue,
             )}`,
         );
+    console.log({ error });
     throw new InternalServerErrorException(
         `No se pudo crear o actualizar la entidad de tipo "${nameEntity}" - Check logs`,
     );

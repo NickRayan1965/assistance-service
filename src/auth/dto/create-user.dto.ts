@@ -8,6 +8,7 @@ import {
     IsOptional,
     IsPhoneNumber,
     IsString,
+    IsUppercase,
     Length,
     Min,
     MinLength,
@@ -28,6 +29,7 @@ export class CreateUserDto {
     @IsString()
     @IsEmail()
     readonly email: string;
+
     @ApiProperty({
         description: 'Contraseña para el usuario',
         minLength: 6,
@@ -40,11 +42,13 @@ export class CreateUserDto {
     @ApiProperty({ minLength: 1, required: true })
     @IsString()
     @MinLength(1)
+    @IsUppercase()
     firstnames: string;
 
     @ApiProperty({ minLength: 1, required: true })
     @IsString()
     @MinLength(1)
+    @IsUppercase()
     lastnames: string;
 
     @ApiProperty({ minLength: 8, maxLength: 8, required: true })

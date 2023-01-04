@@ -6,8 +6,14 @@ import { handleExceptions } from 'src/common/errors/handleExceptions';
 import * as bcrypt from 'bcrypt';
 import { replaceDoubleSpacesAndTrim } from 'src/common/func/replaceDoubleSpacesAndTrim.func';
 import { ValidateResourceOwner } from 'src/auth/guards';
-import { BasicsQueryParamsDto } from 'src/common/dto/basics-query-params.dto';
 import { WorkPositionRepository } from 'src/work-position/work-position.repository';
+import { PipelineStage } from 'mongoose';
+import { UserQueryParamsDto } from './dto/user-query-params.dto';
+import {
+    pipeLinesStageToFilterNamesComplexly,
+    pipeLinesStageToFilterSimpleNames,
+    pipelineStageToConnectToNestedObject,
+} from 'src/common/pipeLineStages';
 @Injectable()
 export class UserService {
     private readonly nameEntity = User.name;
@@ -17,17 +23,52 @@ export class UserService {
     ) {}
 
     async getAllUsers(
-        basics_query_paramsDto: BasicsQueryParamsDto,
+        user_query_paramsDto: UserQueryParamsDto,
     ): Promise<User[]> {
-        const userFilter: Partial<User> = {};
-        const { all, inactive, limit, offset } = basics_query_paramsDto;
-        if (!all) userFilter.isActive = true;
-        if (inactive) userFilter.isActive = false;
-        return this.userRepository.find(userFilter, limit, offset);
+        const pipelinesStages: PipelineStage[] = [{ $match: {} }];
+        const {
+            all,
+            inactive,
+            limit,
+            offset,
+            fullNamesComplex,
+            workPosition,
+            fullNameSimple,
+        } = user_query_paramsDto;
+        if (!all) pipelinesStages[0]['$match'].isActive = true;
+        if (inactive) pipelinesStages[0]['$match'].isActive = false;
+        const workPositionPipelinesStages =
+            pipelineStageToConnectToNestedObject({
+                from: 'workpositions',
+                localField: 'work_position',
+                id_match: workPosition,
+            });
+        pipelinesStages.push(...workPositionPipelinesStages);
+        if (fullNamesComplex) {
+            pipelinesStages.push(
+                ...pipeLinesStageToFilterNamesComplexly(
+                    fullNamesComplex,
+                    'firstnames',
+                    'lastnames',
+                ),
+            );
+        }
+        if (fullNameSimple) {
+            pipelinesStages.push(
+                ...pipeLinesStageToFilterSimpleNames(
+                    fullNameSimple,
+                    'firstnames',
+                    'lastnames',
+                ),
+            );
+        }
+        pipelinesStages.push({ $skip: limit * offset });
+        pipelinesStages.push({ $limit: limit });
+        return this.userRepository.aggregate<User>(pipelinesStages);
     }
 
     async getUserById(id: string, userPayload: UserDocument): Promise<User> {
-        const user = await this.userRepository.findById(id);
+        const user = await this.userRepository.findById(id, true);
         ValidateResourceOwner(userPayload, user, '_id');
         return user;
     }
@@ -49,17 +90,6 @@ export class UserService {
                 updateUserDto.phone_number,
             );
             updateUserDto.updatedAt = new Date();
-
-            updateUserDto.firstnames = updateUserDto.firstnames
-                ? replaceDoubleSpacesAndTrim(
-                      updateUserDto.firstnames.toUpperCase(),
-                  )
-                : updateUserDto.firstnames;
-            updateUserDto.lastnames = updateUserDto.lastnames
-                ? replaceDoubleSpacesAndTrim(
-                      updateUserDto.lastnames.toUpperCase(),
-                  )
-                : updateUserDto.lastnames;
 
             const userUpdated = await this.userRepository.findByIdAndUpdate(
                 id,

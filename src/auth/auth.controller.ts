@@ -28,7 +28,7 @@ export class AuthController {
         status: HttpStatus.FORBIDDEN,
         description: 'El Usuario necesita un rol válido para este endpoint',
     })
-    @Auth(ValidRoles.admin)
+    //@Auth(ValidRoles.admin)
     @Post('register')
     register(@Body() createAuthDto: CreateUserDto) {
         return this.authService.registerUser(createAuthDto);

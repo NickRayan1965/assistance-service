@@ -7,7 +7,7 @@ import {
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-export interface WorkPositionRepository {
+export interface IWorkPositionRepository {
     create(
         createWorkPositionDto: CreateWorkPositionDto,
     ): Promise<WorkPositionDocument>;
@@ -23,11 +23,12 @@ export interface WorkPositionRepository {
     findByIdAndUpdate(
         id: string,
         workPositionUpdates: Partial<WorkPosition>,
+        isRequest: boolean,
     ): Promise<WorkPositionDocument>;
     aggregate<T>(pipeLinesStages: PipelineStage[]): Promise<T[]>;
 }
 @Injectable()
-export class WorkPositionRepository implements WorkPositionRepository {
+export class WorkPositionRepository implements IWorkPositionRepository {
     constructor(
         @InjectModel(WorkPosition.name)
         private readonly workPositionModel: Model<WorkPositionDocument>,
@@ -45,18 +46,18 @@ export class WorkPositionRepository implements WorkPositionRepository {
         const query = this.workPositionModel.find(workPositionFilterQuery);
         if (offset) query.skip(offset * limit);
         if (limit) query.limit(limit);
-        return query;
+        return query.exec();
     }
     async findById(
         id: string,
-        isRequest = true,
+        isRequest = false,
     ): Promise<WorkPositionDocument> {
-        const work_position = this.workPositionModel.findById(id);
+        const work_position = await this.workPositionModel.findById(id);
         if (!work_position && isRequest)
             throw new NotFoundException(
                 `No existe la posición de trabajo con el id: ${id}`,
             );
-        return work_position.exec();
+        return work_position;
     }
     async findOne(
         workPositionFilterQuery: FilterQuery<WorkPositionDocument>,
@@ -66,21 +67,23 @@ export class WorkPositionRepository implements WorkPositionRepository {
     async findByIdAndUpdate(
         id: string,
         work_position_updates: Partial<WorkPosition>,
+        isRequest = false,
     ): Promise<WorkPositionDocument> {
-        const work_position_update = this.workPositionModel.findByIdAndUpdate(
-            id,
-            work_position_updates,
-            {
-                new: true,
-            },
-        );
-        if (!work_position_update)
-            throw new NotFoundException(
-                `No existe el usuario con el id: ${id}`,
+        const work_position_update =
+            await this.workPositionModel.findByIdAndUpdate(
+                id,
+                work_position_updates,
+                {
+                    new: true,
+                },
             );
-        return work_position_update.exec();
+        if (!work_position_update && isRequest)
+            throw new NotFoundException(
+                `No existe la posición de trabajo con el id: ${id}`,
+            );
+        return work_position_update;
     }
     async aggregate<T>(pipeLinesStages: PipelineStage[]): Promise<T[]> {
-        return this.workPositionModel.aggregate<T>(pipeLinesStages);
+        return this.workPositionModel.aggregate<T>(pipeLinesStages).exec();
     }
 }

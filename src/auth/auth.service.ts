@@ -27,12 +27,7 @@ export class AuthService {
         createUserDto.phone_number = replaceDoubleSpacesAndTrim(
             createUserDto.phone_number,
         );
-        createUserDto.firstnames = replaceDoubleSpacesAndTrim(
-            createUserDto.firstnames.toUpperCase(),
-        );
-        createUserDto.lastnames = replaceDoubleSpacesAndTrim(
-            createUserDto.lastnames.toUpperCase(),
-        );
+
         try {
             const user = await this.userRepository.create(createUserDto);
             const createUserResponse: CreateOrLoginResponseDto = {

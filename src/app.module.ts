@@ -5,6 +5,7 @@ import { DatabaseModule } from './database/database.module';
 import { EnvConfiguration } from './config/app.config';
 import { UserModule } from './user/user.module';
 import { WorkPositionModule } from './work-position/work-position.module';
+import { HourRegisterModule } from './hour-register/hour-register.module';
 
 @Module({
     imports: [
@@ -13,6 +14,7 @@ import { WorkPositionModule } from './work-position/work-position.module';
         AuthModule,
         UserModule,
         WorkPositionModule,
+        HourRegisterModule,
     ],
     controllers: [],
     providers: [],

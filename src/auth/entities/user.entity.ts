@@ -40,7 +40,7 @@ export class User {
 
     @ApiProperty({ nullable: false, minLength: 1 })
     @Prop({ required: true, minlength: 1 })
-    firtnames: string;
+    firstnames: string;
 
     @ApiProperty({ nullable: false, minLength: 1 })
     @Prop({ required: true, minlength: 1 })
