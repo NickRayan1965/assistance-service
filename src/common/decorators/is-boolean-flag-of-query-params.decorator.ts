@@ -32,11 +32,11 @@ export class ValidationOptionsCustom implements ValidationOptions {
 export function IsBooleanFlagOfQueryParams(
     validationOptions?: ValidationOptionsCustom,
 ) {
-    return function (object: any, propertyName: string) {
+    return function (object: object, propertyName: string) {
         registerDecorator({
-            name: 'isBooleanFlagOfQueryParams',
+            name: 'IsBooleanFlagOfQueryParams',
             target: object.constructor,
-            propertyName: propertyName,
+            propertyName,
             options: {
                 message: `the query property '${propertyName}' should be a boolean string (true, false)`,
                 ...validationOptions,
@@ -67,11 +67,6 @@ export function IsBooleanFlagOfQueryParams(
                             );
                         }
                     }
-                    console.log({
-                        valueBefore,
-                        isBooleanString: isBooleanString(valueBefore),
-                        typeof: typeof valueBefore,
-                    });
                     return (
                         isBooleanString(valueBefore) ||
                         typeof valueBefore == 'undefined'

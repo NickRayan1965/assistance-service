@@ -6,6 +6,7 @@ import { EnvConfiguration } from './config/app.config';
 import { UserModule } from './user/user.module';
 import { WorkPositionModule } from './work-position/work-position.module';
 import { HourRegisterModule } from './hour-register/hour-register.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import { HourRegisterModule } from './hour-register/hour-register.module';
         UserModule,
         WorkPositionModule,
         HourRegisterModule,
+        SeedModule,
     ],
     controllers: [],
     providers: [],

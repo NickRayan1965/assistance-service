@@ -100,7 +100,7 @@ export class User {
         required: true,
         index: true,
     })
-    work_position: WorkPosition | Types.ObjectId | string;
+    work_position: WorkPosition | Types.ObjectId;
 
     @ApiProperty({ description: 'Estado del registro', nullable: false })
     @Prop({ required: true, default: true })

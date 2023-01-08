@@ -6,27 +6,24 @@ import {
 import { NotFoundException } from '@nestjs/common';
 
 export function IsOneDefined(
-    groupName: string,
+    groupName: string[],
     validationOptions?: ValidationOptions,
 ) {
     return function (object: object, propertyName: string) {
         registerDecorator({
             name: 'IsOneDefined',
             target: object.constructor,
-            propertyName: propertyName,
-            constraints: [groupName],
+            propertyName,
             options: validationOptions,
             validator: {
-                validate(value: any, args: ValidationArguments) {
+                validate(_: any, args: ValidationArguments) {
                     const object = args.object as any;
-                    const groupProperties = args.constraints[0] as string[];
-                    console.log({ argsConstraints: args.constraints });
-                    const definedProperties = groupProperties.filter(
+                    const definedProperties = groupName.filter(
                         (property) => object[property] !== undefined,
                     );
                     if (definedProperties.length > 1) {
                         throw new NotFoundException(
-                            `Expected only one of the following properties to be defined: ${groupProperties.join(
+                            `Expected only one of the following properties to be defined: ${groupName.join(
                                 ', ',
                             )}`,
                         );

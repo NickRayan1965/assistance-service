@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { replaceDoubleSpacesAndTrim } from 'src/common/func/replaceDoubleSpacesAndTrim.func';
 import { ValidateResourceOwner } from 'src/auth/guards';
 import { WorkPositionRepository } from 'src/work-position/work-position.repository';
-import { PipelineStage } from 'mongoose';
+import { PipelineStage, Types } from 'mongoose';
 import { UserQueryParamsDto } from './dto/user-query-params.dto';
 import {
     pipeLinesStageToFilterNamesComplexly,
@@ -31,7 +31,7 @@ export class UserService {
             inactive,
             limit,
             offset,
-            fullNamesComplex,
+            fullNameComplex,
             workPosition,
             fullNameSimple,
         } = user_query_paramsDto;
@@ -44,10 +44,11 @@ export class UserService {
                 id_match: workPosition,
             });
         pipelinesStages.push(...workPositionPipelinesStages);
-        if (fullNamesComplex) {
+
+        if (fullNameComplex) {
             pipelinesStages.push(
                 ...pipeLinesStageToFilterNamesComplexly(
-                    fullNamesComplex,
+                    fullNameComplex,
                     'firstnames',
                     'lastnames',
                 ),
@@ -78,10 +79,14 @@ export class UserService {
         updateUserDto: UpdateUserDto,
     ): Promise<User> {
         try {
-            if (updateUserDto.work_position)
+            if (updateUserDto.work_position) {
                 await this.workPositionRepository.findById(
+                    updateUserDto.work_position.toString(),
+                );
+                updateUserDto.work_position = new Types.ObjectId(
                     updateUserDto.work_position,
                 );
+            }
 
             const { password } = updateUserDto;
             if (password)

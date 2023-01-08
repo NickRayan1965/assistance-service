@@ -17,6 +17,8 @@ export interface IUserRepository {
         userUpdates: Partial<User>,
         isRequest: boolean,
     ): Promise<UserDocument>;
+    insertMany(users: User[]): Promise<any>;
+    deleteMany(filterQuery: FilterQuery<UserDocument>): Promise<any>;
     aggregate<T>(pipeLinesStages: PipelineStage[]): Promise<T[]>;
 }
 @Injectable()
@@ -24,6 +26,10 @@ export class UserRepository implements IUserRepository {
     constructor(
         @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     ) {}
+    async insertMany(users: User[]) {
+        return this.userModel.insertMany(users);
+    }
+
     async create(user: CreateUserDto): Promise<UserDocument> {
         return this.userModel.create(user);
     }
@@ -65,6 +71,9 @@ export class UserRepository implements IUserRepository {
                 `No existe el usuario con el id: ${id}`,
             );
         return userUpdated;
+    }
+    async deleteMany(filterQuery?: FilterQuery<UserDocument>) {
+        return this.userModel.deleteMany(filterQuery).exec();
     }
     async aggregate<T>(pipeLinesStages: PipelineStage[]): Promise<T[]> {
         return this.userModel.aggregate<T>(pipeLinesStages).exec();

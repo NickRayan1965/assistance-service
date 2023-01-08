@@ -18,5 +18,6 @@ import { HourRegisterRepository } from './hour-register.repository';
         ]),
         forwardRef(() => AuthModule),
     ],
+    exports: [HourRegisterRepository],
 })
 export class HourRegisterModule {}

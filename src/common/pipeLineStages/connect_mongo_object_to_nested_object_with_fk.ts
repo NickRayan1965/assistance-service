@@ -29,7 +29,7 @@ export const pipelineStageToConnectToNestedObject = ({
     if (id_match) {
         pipeLineStages.push({
             $match: {
-                [as + `.${foreignField}`]: new Types.ObjectId(foreignField),
+                [as + `.${foreignField}`]: new Types.ObjectId(id_match),
             },
         });
     }

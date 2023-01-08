@@ -4,5 +4,5 @@ import { Types } from 'mongoose';
 
 export class CreateHourRegisterDto extends PartialType(HourRegister) {
     date: Date;
-    user: Types.ObjectId | string;
+    user: Types.ObjectId;
 }

@@ -19,6 +19,7 @@ import {
     DEFAULT_MIN_SALARY,
     DEFAULT_USER_ROLES,
 } from '../entities/user.entity';
+import { Types } from 'mongoose';
 
 export class CreateUserDto {
     @ApiProperty({
@@ -99,7 +100,7 @@ export class CreateUserDto {
     roles?: ValidRoles[];
 
     @IsMongoId()
-    work_position: string;
+    work_position: Types.ObjectId;
 
     @IsEmpty()
     createdAt: Date;

@@ -16,15 +16,15 @@ import { ValidRoles } from 'src/auth/interfaces';
 import { ParseMongoIdPipe } from 'src/common/pipe/parse-mongo-id.pipe';
 import { User, UserDocument } from 'src/auth/entities/user.entity';
 import { BasicsQueryParamsDto } from 'src/common/dto/basics-query-params.dto';
+import { UserQueryParamsDto } from './dto/user-query-params.dto';
 
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
     //@Auth(ValidRoles.admin)
     @Get()
-    getUsers(@Query() basics_query_paramsDto: BasicsQueryParamsDto) {
-        console.log(basics_query_paramsDto);
-        return this.userService.getAllUsers(basics_query_paramsDto);
+    getUsers(@Query() user_query_params: UserQueryParamsDto) {
+        return this.userService.getAllUsers(user_query_params);
     }
     @Auth(ValidRoles.admin, ValidRoles.employed)
     @Get(':id')

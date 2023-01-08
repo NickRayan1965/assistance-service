@@ -13,4 +13,6 @@ export const EnvConfiguration = () => ({
     AUTH_SOURCE_TEST: process.env.AUTH_SOURCE_TEST,
     LIMIT: +process.env.LIMIT || LIMIT_ALTERNATIVE,
     OFFSET: +process.env.OFFSET || OFFSET_ALTERNATIVE,
+    PWD_SEED: process.env.PWD_SEED,
+    USER_SEED: process.env.USER_SEED,
 });

@@ -25,6 +25,9 @@ export interface IWorkPositionRepository {
         workPositionUpdates: Partial<WorkPosition>,
         isRequest: boolean,
     ): Promise<WorkPositionDocument>;
+    insertMany(workPositions: WorkPosition[]): Promise<any>;
+
+    deleteMany(filterQuery: FilterQuery<WorkPositionDocument>): Promise<any>;
     aggregate<T>(pipeLinesStages: PipelineStage[]): Promise<T[]>;
 }
 @Injectable()
@@ -33,6 +36,9 @@ export class WorkPositionRepository implements IWorkPositionRepository {
         @InjectModel(WorkPosition.name)
         private readonly workPositionModel: Model<WorkPositionDocument>,
     ) {}
+    async insertMany(workPositions: WorkPosition[]): Promise<any> {
+        return this.workPositionModel.insertMany(workPositions);
+    }
     async create(
         createWorkPositionDto: CreateWorkPositionDto,
     ): Promise<WorkPositionDocument> {
@@ -82,6 +88,9 @@ export class WorkPositionRepository implements IWorkPositionRepository {
                 `No existe la posición de trabajo con el id: ${id}`,
             );
         return work_position_update;
+    }
+    async deleteMany(filterQuery?: FilterQuery<WorkPosition>) {
+        return this.workPositionModel.deleteMany(filterQuery).exec();
     }
     async aggregate<T>(pipeLinesStages: PipelineStage[]): Promise<T[]> {
         return this.workPositionModel.aggregate<T>(pipeLinesStages).exec();
