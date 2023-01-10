@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document, Types } from 'mongoose';
-import { User } from 'src/auth/entities/user.entity';
+import { User } from '@app/auth/entities/user.entity';
 export type HourRegisterDocument = HourRegister & Document;
 export const DEFAULT_EMPY_TIME = '--:--';
 export const LUNCH_TIME_DEFAULT = 45; // 45 minutes

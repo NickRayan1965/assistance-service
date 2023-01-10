@@ -7,7 +7,7 @@ import {
     WorkPositionSchema,
 } from './entities/work-position.entity';
 import { WorkPositionRepository } from './work-position.repository';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '@app/auth/auth.module';
 
 @Module({
     controllers: [WorkPositionController],

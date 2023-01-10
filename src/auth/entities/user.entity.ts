@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { ValidRoles, Sex } from '../interfaces';
 import { ApiProperty } from '@nestjs/swagger';
-import { WorkPosition } from 'src/work-position/entities/work-position.entity';
+import { WorkPosition } from '@app/work-position/entities/work-position.entity';
 export const DEFAULT_USER_ROLES = [ValidRoles.employed];
 export const DEFAULT_MIN_SALARY = 1025;
 export type UserDocument = User & Document;

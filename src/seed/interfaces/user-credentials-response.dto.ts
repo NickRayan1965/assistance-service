@@ -1,4 +1,4 @@
-import { ValidRoles } from 'src/auth/interfaces';
+import { ValidRoles } from '@app/auth/interfaces';
 
 export interface UserCredentialsDto {
     email: string;

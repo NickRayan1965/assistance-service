@@ -2,16 +2,15 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './entities/user.entity';
 import { FilterQuery, Model, PipelineStage } from 'mongoose';
-import { CreateUserDto } from './dto';
 export interface IUserRepository {
-    create(createUserDto: CreateUserDto): Promise<UserDocument>;
+    create(userToCreate: Partial<User>): Promise<User>;
     find(
         userFilterQuery: FilterQuery<User>,
         limit: number,
         offset: number,
-    ): Promise<UserDocument[]>;
-    findById(id: string, isRequest: boolean): Promise<UserDocument>;
-    findOne(userFilterQuery: FilterQuery<User>): Promise<UserDocument>;
+    ): Promise<User[]>;
+    findById(id: string, isRequest: boolean): Promise<User>;
+    findOne(userFilterQuery: FilterQuery<User>): Promise<User>;
     findByIdAndUpdate(
         id: string,
         userUpdates: Partial<User>,
@@ -30,8 +29,8 @@ export class UserRepository implements IUserRepository {
         return this.userModel.insertMany(users);
     }
 
-    async create(user: CreateUserDto): Promise<UserDocument> {
-        return this.userModel.create(user);
+    async create(userToCreate: Partial<User>): Promise<User> {
+        return this.userModel.create(userToCreate);
     }
     async find(
         userFilterQuery?: FilterQuery<User>,
@@ -43,7 +42,7 @@ export class UserRepository implements IUserRepository {
         if (limit) query.limit(limit);
         return query.exec();
     }
-    async findById(id: string, isRequest = false): Promise<UserDocument> {
+    async findById(id: string, isRequest = false): Promise<User> {
         const user = await this.userModel.findById(id);
         if (!user && isRequest)
             throw new NotFoundException(
@@ -51,7 +50,7 @@ export class UserRepository implements IUserRepository {
             );
         return user;
     }
-    async findOne(userFilterQuery: FilterQuery<User>): Promise<UserDocument> {
+    async findOne(userFilterQuery: FilterQuery<User>): Promise<User> {
         return this.userModel.findOne(userFilterQuery).exec();
     }
     async findByIdAndUpdate(

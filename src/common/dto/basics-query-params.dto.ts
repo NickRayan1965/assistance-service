@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsOptional, Min } from 'class-validator';
-import { OFFSET_ALTERNATIVE, LIMIT_ALTERNATIVE } from 'src/config/app.config';
+import { OFFSET_ALTERNATIVE, LIMIT_ALTERNATIVE } from '@app/config/app.config';
 import { IsBooleanFlagOfQueryParams } from '../decorators/is-boolean-flag-of-query-params.decorator';
 import { Flag } from '../interfaces/flag-true-false.enum';
 const state_group = ['all', 'inactive'];

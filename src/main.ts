@@ -2,20 +2,19 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-const title_app = 'Basic Auth with JWT and Roles';
+export const title_app = 'Basic Auth with JWT and Roles';
+export const validationPipe = new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+    transformOptions: {
+        enableImplicitConversion: true,
+    },
+});
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     app.setGlobalPrefix('api/v1');
-    app.useGlobalPipes(
-        new ValidationPipe({
-            whitelist: true,
-            forbidNonWhitelisted: true,
-            transform: true,
-            transformOptions: {
-                enableImplicitConversion: true,
-            },
-        }),
-    );
+    app.useGlobalPipes(validationPipe);
     const config = new DocumentBuilder()
         .addBearerAuth({
             type: 'http',

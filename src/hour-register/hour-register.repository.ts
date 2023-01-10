@@ -4,7 +4,7 @@ import {
     HourRegisterDocument,
 } from './entities/hour-register.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserRepository } from 'src/auth/users.repository';
+import { UserRepository } from '@app/auth/users.repository';
 import { CreateHourRegisterDto } from './dto/create-hour-register.dto';
 import { NotFoundException } from '@nestjs/common';
 

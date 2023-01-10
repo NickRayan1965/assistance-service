@@ -1,22 +1,22 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserRepository } from 'src/auth/users.repository';
-import { HourRegisterRepository } from 'src/hour-register/hour-register.repository';
-import { WorkPositionRepository } from 'src/work-position/work-position.repository';
+import { UserRepository } from '@app/auth/users.repository';
+import { HourRegisterRepository } from '@app/hour-register/hour-register.repository';
+import { WorkPositionRepository } from '@app/work-position/work-position.repository';
 import { UserSeed } from './dto/user-seed-execute.dto';
 import { ConfigService } from '@nestjs/config';
-import { WorkPosition } from 'src/work-position/entities/work-position.entity';
-import { DEFAULT_MIN_SALARY, User } from 'src/auth/entities/user.entity';
+import { WorkPosition } from '@app/work-position/entities/work-position.entity';
+import { DEFAULT_MIN_SALARY, User } from '@app/auth/entities/user.entity';
 import {
     CalculatedTimeFields,
     HourRegister,
-} from 'src/hour-register/entities/hour-register.entity';
+} from '@app/hour-register/entities/hour-register.entity';
 import { UserCredentialsDto } from './interfaces/user-credentials-response.dto';
 import { faker } from '@faker-js/faker';
 import { Types } from 'mongoose';
 import { ValidTimes } from './interfaces/valid-times';
-import { ValidRoles } from 'src/auth/interfaces';
-import { Encrypter } from 'src/common/utilities/encrypter';
-import { HourRegisterUtilities } from 'src/hour-register/utilities/hour-register.util';
+import { ValidRoles } from '@app/auth/interfaces';
+import { Encrypter } from '@app/common/utilities/encrypter';
+import { HourRegisterUtilities } from '@app/hour-register/utilities/hour-register.util';
 import { SeedResponse } from './interfaces/seed-response.dto';
 @Injectable()
 export class SeedService {

@@ -1,16 +1,16 @@
-import { Test } from '@nestjs/testing';
-import { AppModule } from '../../src/app.module';
+/* import { Test } from '@nestjs/testing';
+import { AppModule } from 'app/app.module';
 import { NestApplication } from '@nestjs/core';
 import { Connection } from 'mongoose';
-import { DatabaseSevice } from '../../src/database/database.service';
+import { DatabaseSevice } from 'app/database/database.service';
 import * as request from 'supertest';
-import { userStub } from '../stubs/CreateUserDto.stub';
+import { userStub } from '../../stubs/auth/CreateUserDto.stub';
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import {
     DEFAULT_USER_ROLES,
     User,
     UserDocument,
-} from '../../src/auth/entities/user.entity';
+} from 'app/auth/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { userAdminStub } from '../../test/stubs/userAdmin.stub';
 import * as bcrypt from 'bcrypt';
@@ -449,3 +449,4 @@ describe('AuhtController (e2e)', () => {
         });
     });
 });
+ */

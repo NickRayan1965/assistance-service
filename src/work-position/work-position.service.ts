@@ -6,8 +6,8 @@ import {
     WorkPosition,
     WorkPositionDocument,
 } from './entities/work-position.entity';
-import { handleExceptions } from 'src/common/errors/handleExceptions';
-import { BasicsQueryParamsDto } from 'src/common/dto/basics-query-params.dto';
+import { handleExceptions } from '@app/common/errors/handleExceptions';
+import { BasicsQueryParamsDto } from '@app/common/dto/basics-query-params.dto';
 
 @Injectable()
 export class WorkPositionService {

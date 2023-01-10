@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsUppercase, MinLength } from 'class-validator';
-import { Is24hFormatString } from 'src/common/decorators/is-24-hours-format-string.decorator';
+import { Is24hFormatString } from '@app/common/decorators/is-24-hours-format-string.decorator';
 
 export class CreateWorkPositionDto {
     @ApiProperty({ required: true, uniqueItems: true, minLength: 1 })

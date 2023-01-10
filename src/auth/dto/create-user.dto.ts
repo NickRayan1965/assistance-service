@@ -1,7 +1,6 @@
 import {
     IsDate,
     IsEmail,
-    IsEmpty,
     IsEnum,
     IsMongoId,
     IsNumber,
@@ -101,10 +100,4 @@ export class CreateUserDto {
 
     @IsMongoId()
     work_position: Types.ObjectId;
-
-    @IsEmpty()
-    createdAt: Date;
-
-    @IsEmpty()
-    updatedAt: Date;
 }

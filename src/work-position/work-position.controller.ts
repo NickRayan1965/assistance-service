@@ -11,10 +11,10 @@ import {
 import { WorkPositionService } from './work-position.service';
 import { CreateWorkPositionDto } from './dto/create-work-position.dto';
 import { UpdateWorkPositionDto } from './dto/update-work-position.dto';
-import { BasicsQueryParamsDto } from 'src/common/dto/basics-query-params.dto';
-import { ParseMongoIdPipe } from 'src/common/pipe/parse-mongo-id.pipe';
-import { Auth } from 'src/auth/decorators';
-import { ValidRoles } from 'src/auth/interfaces';
+import { BasicsQueryParamsDto } from '@app/common/dto/basics-query-params.dto';
+import { ParseMongoIdPipe } from '@app/common/pipe/parse-mongo-id.pipe';
+import { Auth } from '@app/auth/decorators';
+import { ValidRoles } from '@app/auth/interfaces';
 
 @Controller('work-position')
 export class WorkPositionController {

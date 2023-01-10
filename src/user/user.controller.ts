@@ -11,11 +11,10 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Auth, GetUser } from 'src/auth/decorators';
-import { ValidRoles } from 'src/auth/interfaces';
-import { ParseMongoIdPipe } from 'src/common/pipe/parse-mongo-id.pipe';
-import { User, UserDocument } from 'src/auth/entities/user.entity';
-import { BasicsQueryParamsDto } from 'src/common/dto/basics-query-params.dto';
+import { Auth, GetUser } from '@app/auth/decorators';
+import { ValidRoles } from '@app/auth/interfaces';
+import { ParseMongoIdPipe } from '@app/common/pipe/parse-mongo-id.pipe';
+import { User, UserDocument } from '@app/auth/entities/user.entity';
 import { UserQueryParamsDto } from './dto/user-query-params.dto';
 
 @Controller('user')

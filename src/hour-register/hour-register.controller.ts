@@ -9,9 +9,9 @@ import {
     Query,
 } from '@nestjs/common';
 import { HourRegisterService } from './hour-register.service';
-import { ParseMongoIdPipe } from 'src/common/pipe/parse-mongo-id.pipe';
-import { ParseDateIso8601Pipe } from 'src/common/pipe/parse-date-iso8601.pipe';
-import { ParseHoursMinutes24FPipe } from 'src/common/pipe/parse-hours-minutes24-f.pipe';
+import { ParseMongoIdPipe } from '@app/common/pipe/parse-mongo-id.pipe';
+import { ParseDateIso8601Pipe } from '@app/common/pipe/parse-date-iso8601.pipe';
+import { ParseHoursMinutes24FPipe } from '@app/common/pipe/parse-hours-minutes24-f.pipe';
 
 @Controller('hour-register')
 export class HourRegisterController {

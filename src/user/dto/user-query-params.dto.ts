@@ -1,6 +1,6 @@
 import { IsMongoId, IsOptional, IsString } from 'class-validator';
-import { IsOneDefined } from 'src/common/decorators/is-one-defined.decorator';
-import { BasicsQueryParamsDto } from 'src/common/dto/basics-query-params.dto';
+import { IsOneDefined } from '@app/common/decorators/is-one-defined.decorator';
+import { BasicsQueryParamsDto } from '@app/common/dto/basics-query-params.dto';
 const name_group = ['fullNamesComplex', 'fullNameSimple'];
 export class UserQueryParamsDto extends BasicsQueryParamsDto {
     @IsOptional()

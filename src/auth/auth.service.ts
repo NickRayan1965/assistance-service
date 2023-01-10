@@ -6,10 +6,10 @@ import { JwtPayload } from './interfaces';
 import { JwtService } from '@nestjs/jwt';
 import { User } from './entities/user.entity';
 import { handleExceptions } from '../common/errors/handleExceptions';
-import { replaceDoubleSpacesAndTrim } from 'src/common/func/replaceDoubleSpacesAndTrim.func';
-import { WorkPositionRepository } from 'src/work-position/work-position.repository';
+import { replaceDoubleSpacesAndTrim } from '@app/common/func/replaceDoubleSpacesAndTrim.func';
+import { WorkPositionRepository } from '@app/work-position/work-position.repository';
 import { Types } from 'mongoose';
-import { Encrypter } from 'src/common/utilities/encrypter';
+import { Encrypter } from '@app/common/utilities/encrypter';
 @Injectable()
 export class AuthService {
     private readonly nameEntity = User.name;
@@ -28,14 +28,18 @@ export class AuthService {
             createUserDto.work_position,
         );
         createUserDto.password = Encrypter.encrypt(createUserDto.password);
-        createUserDto.createdAt = new Date();
-        createUserDto.updatedAt = createUserDto.createdAt;
+        const createdAt = new Date();
+        const updatedAt = createdAt;
         createUserDto.phone_number = replaceDoubleSpacesAndTrim(
             createUserDto.phone_number,
         );
 
         try {
-            const user = await this.userRepository.create(createUserDto);
+            const user = await this.userRepository.create({
+                ...createUserDto,
+                updatedAt,
+                createdAt,
+            });
             const createUserResponse: CreateOrLoginResponseDto = {
                 user,
                 jwt: this.getJwt({ id: user._id.toString() }),

@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { User, UserDocument } from 'src/auth/entities/user.entity';
-import { UserRepository } from 'src/auth/users.repository';
+import { User, UserDocument } from '@app/auth/entities/user.entity';
+import { UserRepository } from '@app/auth/users.repository';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { handleExceptions } from 'src/common/errors/handleExceptions';
+import { handleExceptions } from '@app/common/errors/handleExceptions';
 import * as bcrypt from 'bcrypt';
-import { replaceDoubleSpacesAndTrim } from 'src/common/func/replaceDoubleSpacesAndTrim.func';
-import { ValidateResourceOwner } from 'src/auth/guards';
-import { WorkPositionRepository } from 'src/work-position/work-position.repository';
+import { replaceDoubleSpacesAndTrim } from '@app/common/func/replaceDoubleSpacesAndTrim.func';
+import { ValidateResourceOwner } from '@app/auth/guards';
+import { WorkPositionRepository } from '@app/work-position/work-position.repository';
 import { PipelineStage, Types } from 'mongoose';
 import { UserQueryParamsDto } from './dto/user-query-params.dto';
 import {
     pipeLinesStageToFilterNamesComplexly,
     pipeLinesStageToFilterSimpleNames,
     pipelineStageToConnectToNestedObject,
-} from 'src/common/pipeLineStages';
+} from '@app/common/pipeLineStages';
 @Injectable()
 export class UserService {
     private readonly nameEntity = User.name;

@@ -6,7 +6,7 @@ import {
     HourRegister,
     HourRegisterSchema,
 } from './entities/hour-register.entity';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '@app/auth/auth.module';
 import { HourRegisterRepository } from './hour-register.repository';
 
 @Module({

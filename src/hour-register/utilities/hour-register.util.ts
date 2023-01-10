@@ -1,5 +1,5 @@
-import { User } from 'src/auth/entities/user.entity';
-import { WorkPosition } from 'src/work-position/entities/work-position.entity';
+import { User } from '@app/auth/entities/user.entity';
+import { WorkPosition } from '@app/work-position/entities/work-position.entity';
 import {
     CalculatedTimeFields,
     DEFAULT_EMPY_TIME,
