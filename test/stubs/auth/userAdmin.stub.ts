@@ -2,26 +2,36 @@ import { faker } from '@faker-js/faker';
 import { User } from '@app/auth/entities/user.entity';
 import { ValidRoles } from '@app/auth/interfaces';
 import { Types } from 'mongoose';
-
-export const getUserAdminStub = (work_position: Types.ObjectId): User => {
+import { getRandomInt } from '@app/common/utilities/random-int.util';
+import { Encrypter } from '@app/common/utilities/encrypter';
+export class UserAdminStubOptions {
+    work_position: Types.ObjectId;
+    isActiveRandom: boolean;
+    encrypt: boolean;
+}
+export const getUserAdminStub = ({
+    work_position,
+    encrypt = false,
+    isActiveRandom = false,
+}: Partial<UserAdminStubOptions>): User => {
+    const _id = new Types.ObjectId();
+    const sex = getRandomInt(0, 2) == 1 ? 'female' : 'male';
+    const pwd = 'contraseñaAdmin1234';
     return {
-        _id: new Types.ObjectId(),
-        email: faker.internet.email(
-            faker.random.numeric(8, { allowLeadingZeros: true }),
-            faker.name.lastName(),
-        ),
-        password: 'contraseñaAdmin1234',
+        _id,
+        email: `${_id}@gmail.com`,
+        password: encrypt ? Encrypter.encrypt(pwd) : pwd,
         roles: [ValidRoles.admin, ValidRoles.employed],
-        birth_date: new Date(2003, 0, 1),
+        birth_date: new Date(2003, 5, 6),
         createdAt: new Date(),
         updatedAt: new Date(),
         dni: faker.random.numeric(8, { allowLeadingZeros: true }),
-        firstnames: 'NICK RAYAN',
-        lastnames: 'CERRON OBREGON',
-        phone_number: '999 999 888',
-        salary: 1234,
-        sex: 'M',
+        firstnames: faker.name.firstName(sex).toUpperCase(),
+        lastnames: 'APELLIDOS',
+        phone_number: '+51 999 999 999',
+        salary: 4447,
+        sex: sex == 'male' ? 'M' : 'F',
         work_position,
-        isActive: true,
+        isActive: isActiveRandom ? getRandomInt(0, 2) == 1 : true,
     };
 };

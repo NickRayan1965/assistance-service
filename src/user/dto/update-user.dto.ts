@@ -1,10 +1,13 @@
 import { PartialType } from '@nestjs/swagger';
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsMongoId, IsOptional } from 'class-validator';
 import { CreateUserDto } from '@app/auth/dto';
+import { Types } from 'mongoose';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
     @IsOptional()
     @IsBoolean()
     isActive: boolean;
-    updatedAt: Date;
+    @IsOptional()
+    @IsMongoId()
+    work_position: string | Types.ObjectId;
 }

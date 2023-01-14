@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { UserAndUserCredentials } from '../auth/interfaces/user-userCredentials.interface';
+import { UserAndUserCredentials } from '../../auth/interfaces/user-userCredentials.interface';
 
 export interface UsersAndJwts {
     work_position: Types.ObjectId;

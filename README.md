@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+<img src="./public/img/seguro.png" width="200" alt="Nest Logo" />
 </p>
 
 # Ejecutar en Desarrollo
@@ -29,20 +29,4 @@ localhost:3000/api
 ## Ejecutar pruebas e2e
 ```
 npm run test:e2e
-```
-
-## Registrar el primer usuario
-1. Ingresarlo directamente a la Base de datos
-<pre>
-{
-  "email": "adminUser@gmail.com",
-  "password": "$2b$10$PElthnOCIPaZAtBBurEZtua3xg13tjVNSkUUp99ZrXSYUBXZ5P0Mq"
-  //password = "contraseña1234"
-}
-</pre>
-2. Borrar el decorar de protección del endpoint de /auth/register en el controllador, usar el endpoint, y volver a ponerlo
-```
-@Post('register')
-@Auth(ValidRoles.admin) //this
-register()....
 ```

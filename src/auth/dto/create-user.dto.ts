@@ -99,5 +99,5 @@ export class CreateUserDto {
     roles?: ValidRoles[];
 
     @IsMongoId()
-    work_position: Types.ObjectId;
+    work_position: string | Types.ObjectId;
 }

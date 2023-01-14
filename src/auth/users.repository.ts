@@ -42,7 +42,7 @@ export class UserRepository implements IUserRepository {
         if (limit) query.limit(limit);
         return query.exec();
     }
-    async findById(id: string, isRequest = false): Promise<User> {
+    async findById(id: string, isRequest = false): Promise<UserDocument> {
         const user = await this.userModel.findById(id);
         if (!user && isRequest)
             throw new NotFoundException(
@@ -50,7 +50,7 @@ export class UserRepository implements IUserRepository {
             );
         return user;
     }
-    async findOne(userFilterQuery: FilterQuery<User>): Promise<User> {
+    async findOne(userFilterQuery: FilterQuery<User>): Promise<UserDocument> {
         return this.userModel.findOne(userFilterQuery).exec();
     }
     async findByIdAndUpdate(

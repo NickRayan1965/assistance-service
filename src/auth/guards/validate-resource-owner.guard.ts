@@ -12,7 +12,7 @@ export const ValidateResourceOwner = (
 ) => {
     const rolesWithAccessToOtherResources = [ValidRoles.admin];
     if (
-        user._id != resourse[keyUser] &&
+        user._id.toString() != resourse[keyUser].toString() &&
         !user.roles.some((role) =>
             rolesWithAccessToOtherResources.includes(role),
         )

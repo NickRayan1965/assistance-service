@@ -39,7 +39,7 @@ export class AuthService {
                 ...createUserDto,
                 updatedAt,
                 createdAt,
-            });
+            } as User);
             const createUserResponse: CreateOrLoginResponseDto = {
                 user,
                 jwt: this.getJwt({ id: user._id.toString() }),

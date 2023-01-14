@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User, UserDocument } from '@app/auth/entities/user.entity';
 import { UserRepository } from '@app/auth/users.repository';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -7,13 +7,9 @@ import * as bcrypt from 'bcrypt';
 import { replaceDoubleSpacesAndTrim } from '@app/common/func/replaceDoubleSpacesAndTrim.func';
 import { ValidateResourceOwner } from '@app/auth/guards';
 import { WorkPositionRepository } from '@app/work-position/work-position.repository';
-import { PipelineStage, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { UserQueryParamsDto } from './dto/user-query-params.dto';
-import {
-    pipeLinesStageToFilterNamesComplexly,
-    pipeLinesStageToFilterSimpleNames,
-    pipelineStageToConnectToNestedObject,
-} from '@app/common/pipeLineStages';
+import { pipelineStagesByUserQueryParams } from './utilities/pipelinesStages-by-user-query-params.util';
 @Injectable()
 export class UserService {
     private readonly nameEntity = User.name;
@@ -25,51 +21,15 @@ export class UserService {
     async getAllUsers(
         user_query_paramsDto: UserQueryParamsDto,
     ): Promise<User[]> {
-        const pipelinesStages: PipelineStage[] = [{ $match: {} }];
-        const {
-            all,
-            inactive,
-            limit,
-            offset,
-            fullNameComplex,
-            workPosition,
-            fullNameSimple,
-        } = user_query_paramsDto;
-        if (!all) pipelinesStages[0]['$match'].isActive = true;
-        if (inactive) pipelinesStages[0]['$match'].isActive = false;
-        const workPositionPipelinesStages =
-            pipelineStageToConnectToNestedObject({
-                from: 'workpositions',
-                localField: 'work_position',
-                id_match: workPosition,
-            });
-        pipelinesStages.push(...workPositionPipelinesStages);
-
-        if (fullNameComplex) {
-            pipelinesStages.push(
-                ...pipeLinesStageToFilterNamesComplexly(
-                    fullNameComplex,
-                    'firstnames',
-                    'lastnames',
-                ),
-            );
-        }
-        if (fullNameSimple) {
-            pipelinesStages.push(
-                ...pipeLinesStageToFilterSimpleNames(
-                    fullNameSimple,
-                    'firstnames',
-                    'lastnames',
-                ),
-            );
-        }
-        pipelinesStages.push({ $skip: limit * offset });
-        pipelinesStages.push({ $limit: limit });
+        const pipelinesStages =
+            pipelineStagesByUserQueryParams(user_query_paramsDto);
         return this.userRepository.aggregate<User>(pipelinesStages);
     }
 
     async getUserById(id: string, userPayload: UserDocument): Promise<User> {
-        const user = await this.userRepository.findById(id, true);
+        const user = await (
+            await this.userRepository.findById(id, true)
+        ).populate('work_position');
         ValidateResourceOwner(userPayload, user, '_id');
         return user;
     }
@@ -78,34 +38,41 @@ export class UserService {
         id: string,
         updateUserDto: UpdateUserDto,
     ): Promise<User> {
-        try {
-            if (updateUserDto.work_position) {
-                await this.workPositionRepository.findById(
-                    updateUserDto.work_position.toString(),
-                );
-                updateUserDto.work_position = new Types.ObjectId(
-                    updateUserDto.work_position,
-                );
-            }
-
-            const { password } = updateUserDto;
-            if (password)
-                updateUserDto.password = bcrypt.hashSync(password, 10);
+        if (updateUserDto.work_position) {
+            await this.workPositionRepository.findById(
+                updateUserDto.work_position.toString(),
+                true,
+            );
+            updateUserDto.work_position = new Types.ObjectId(
+                updateUserDto.work_position,
+            );
+        }
+        const { password } = updateUserDto;
+        if (password) updateUserDto.password = bcrypt.hashSync(password, 10);
+        if (updateUserDto.phone_number)
             updateUserDto.phone_number = replaceDoubleSpacesAndTrim(
                 updateUserDto.phone_number,
             );
-            updateUserDto.updatedAt = new Date();
-
-            const userUpdated = await this.userRepository.findByIdAndUpdate(
-                id,
-                updateUserDto,
-            );
-            return userUpdated;
+        let userUpdated: UserDocument;
+        try {
+            userUpdated = await this.userRepository.findByIdAndUpdate(id, {
+                ...updateUserDto,
+                updatedAt: new Date(),
+            } as User);
         } catch (error) {
             handleExceptions(error, this.nameEntity);
         }
+        if (!userUpdated)
+            throw new NotFoundException(
+                `No existe el usuario con el id: ${id}`,
+            );
+        return await userUpdated.populate('work_position');
     }
     async deleteOneUser(id: string) {
-        await this.userRepository.findByIdAndUpdate(id, { isActive: false });
+        await this.userRepository.findByIdAndUpdate(
+            id,
+            { isActive: false },
+            true,
+        );
     }
 }

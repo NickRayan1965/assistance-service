@@ -20,7 +20,7 @@ import { UserQueryParamsDto } from './dto/user-query-params.dto';
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
-    //@Auth(ValidRoles.admin)
+    @Auth(ValidRoles.admin)
     @Get()
     getUsers(@Query() user_query_params: UserQueryParamsDto) {
         return this.userService.getAllUsers(user_query_params);
@@ -31,7 +31,7 @@ export class UserController {
         @Param('id', ParseMongoIdPipe) id: string,
         @GetUser() userPayload: UserDocument,
     ) {
-        this.userService.getUserById(id, userPayload);
+        return this.userService.getUserById(id, userPayload);
     }
     @Auth(ValidRoles.admin)
     @Patch(':id')
@@ -44,7 +44,7 @@ export class UserController {
     @Auth(ValidRoles.admin)
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    deleteUser(@Param('id', ParseMongoIdPipe) id: string): void {
-        this.userService.deleteOneUser(id);
+    async deleteUser(@Param('id', ParseMongoIdPipe) id: string): Promise<void> {
+        await this.userService.deleteOneUser(id);
     }
 }

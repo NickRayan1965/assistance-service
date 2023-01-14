@@ -7,6 +7,8 @@ import {
     CalculatedTimeFields,
 } from './entities/hour-register.entity';
 import { HourRegisterUtilities } from './utilities/hour-register.util';
+import { HourRegisterQueryParamDto } from './dto/hour-register-query-params.dto';
+import { pipelineStagesByHourRegisterQueryParams } from './utilities/pipelinesStages-by-hour-register-query-params.util';
 
 @Injectable()
 export class HourRegisterService {
@@ -24,6 +26,16 @@ export class HourRegisterService {
         return this.hourRegisterRepository.getOrCreateByUserIdAndDate(
             userId,
             date,
+        );
+    }
+    findAll(
+        hour_register_query_paramsDto: HourRegisterQueryParamDto,
+    ): Promise<HourRegister[]> {
+        const pipelinesStages = pipelineStagesByHourRegisterQueryParams(
+            hour_register_query_paramsDto,
+        );
+        return this.hourRegisterRepository.aggregate<HourRegister>(
+            pipelinesStages,
         );
     }
     async setTimestampAndGet(

@@ -17,7 +17,7 @@ export const getCreateUserDtoStub = (
         dni: faker.random.numeric(8, { allowLeadingZeros: true }),
         firstnames: 'NICK RAYAN',
         lastnames: 'CERRON OBREGON',
-        phone_number: '999 999 888',
+        phone_number: '+51 999 999 888',
         salary: 1234,
         sex: 'M',
         work_position,

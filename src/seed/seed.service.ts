@@ -18,6 +18,8 @@ import { ValidRoles } from '@app/auth/interfaces';
 import { Encrypter } from '@app/common/utilities/encrypter';
 import { HourRegisterUtilities } from '@app/hour-register/utilities/hour-register.util';
 import { SeedResponse } from './interfaces/seed-response.dto';
+import { getRandomInt } from '@app/common/utilities/random-int.util';
+import { hourRandomGenerator } from '@app/common/utilities/hour-random-generator.util';
 @Injectable()
 export class SeedService {
     constructor(
@@ -69,11 +71,9 @@ export class SeedService {
                 _id: new Types.ObjectId(),
                 name: work_position_name,
                 description: faker.lorem.paragraph(10),
-                work_start_time: this.hourRandomGenerator(
-                    ValidTimes.START_TIME,
-                ),
-                work_end_time: this.hourRandomGenerator(ValidTimes.END_TIME),
-                isActive: this.getRandomInt(0, 2) == 0 ? false : true,
+                work_start_time: hourRandomGenerator(ValidTimes.START_TIME),
+                work_end_time: hourRandomGenerator(ValidTimes.END_TIME),
+                isActive: getRandomInt(0, 2) == 0 ? false : true,
             };
             workPositionListToCreate.push(work_position);
         }
@@ -86,7 +86,7 @@ export class SeedService {
         while (dniSet.size < n_users)
             dniSet.add(faker.random.numeric(8, { allowLeadingZeros: true }));
         while (emailList.size < n_users) {
-            const sex = this.getRandomInt(0, 2) == 0 ? 'female' : 'male';
+            const sex = getRandomInt(0, 2) == 0 ? 'female' : 'male';
             const user_first_name = faker.name.firstName(sex);
             const user_last_name = faker.name.lastName();
             const email = faker.internet
@@ -106,7 +106,7 @@ export class SeedService {
         const dniArray = [...dniSet];
         for (let i = 0; i < n_users; i++) {
             const roles = new Set([
-                this.getRandomInt(0, 2) == 0 ? undefined : ValidRoles.admin,
+                getRandomInt(0, 2) == 0 ? undefined : ValidRoles.admin,
                 ValidRoles.employed,
             ]);
             roles.delete(undefined);
@@ -125,12 +125,12 @@ export class SeedService {
                 faker.random.word() +
                 faker.random.numeric(4, { allowLeadingZeros: true });
             user.roles = [...roles];
-            user.salary = this.getRandomInt(DEFAULT_MIN_SALARY, 10000);
+            user.salary = getRandomInt(DEFAULT_MIN_SALARY, 10000);
             user.work_position =
                 workPositionListToCreate[
-                    this.getRandomInt(0, workPositionListToCreate.length)
+                    getRandomInt(0, workPositionListToCreate.length)
                 ]._id;
-            user.isActive = this.getRandomInt(0, 4) >= 1 ? true : false;
+            user.isActive = getRandomInt(0, 4) >= 1 ? true : false;
             userCredentials.push({
                 email: user.email,
                 password: user.password,
@@ -157,15 +157,13 @@ export class SeedService {
                     _id: new Types.ObjectId(),
                     date: minDateForHourRegisters,
                     user: userListToCreate[i]._id,
-                    start_time: this.hourRandomGenerator(ValidTimes.START_TIME),
-                    lunch_start_time: this.hourRandomGenerator(
+                    start_time: hourRandomGenerator(ValidTimes.START_TIME),
+                    lunch_start_time: hourRandomGenerator(
                         ValidTimes.LUNCH_START,
                     ),
-                    lunch_end_time: this.hourRandomGenerator(
-                        ValidTimes.LUNCH_END,
-                    ),
-                    end_time: this.hourRandomGenerator(ValidTimes.END_TIME),
-                    isActive: this.getRandomInt(0, 4) >= 1 ? true : false,
+                    lunch_end_time: hourRandomGenerator(ValidTimes.LUNCH_END),
+                    end_time: hourRandomGenerator(ValidTimes.END_TIME),
+                    isActive: getRandomInt(0, 4) >= 1 ? true : false,
                 };
                 const calculatedTimeFields: CalculatedTimeFields =
                     HourRegisterUtilities.getCalculatedTimeFields({
@@ -193,25 +191,5 @@ export class SeedService {
         console.timeEnd('Completado');
 
         return seedResponse;
-    }
-    private getRandomInt(min: number, max: number) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min) + min);
-    }
-    private hourRandomGenerator(schedule: ValidTimes) {
-        const minutesAcepted = ['00', '15', '30', '45'];
-        const times = {
-            [ValidTimes.START_TIME]: ['05', '06', '07', '08', '09', '10'],
-            [ValidTimes.LUNCH_START]: ['11', '12'],
-            [ValidTimes.LUNCH_END]: ['13', '14', '15'],
-            [ValidTimes.END_TIME]: ['16', '17', '18', '19', '20', '21'],
-        };
-        const hour =
-            times[schedule][this.getRandomInt(0, times[schedule].length)];
-        const minutes =
-            minutesAcepted[this.getRandomInt(0, minutesAcepted.length)];
-        const hour_complete_text = hour + ':' + minutes;
-        return hour_complete_text;
     }
 }

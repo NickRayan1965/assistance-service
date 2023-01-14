@@ -1,16 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-export const title_app = 'Basic Auth with JWT and Roles';
-export const validationPipe = new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-    transformOptions: {
-        enableImplicitConversion: true,
-    },
-});
+import { validationPipe } from './config/validationPipeToTheApp';
+export const title_app = 'Servicio de Asistencias y marcado de refrigerio';
+
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     app.setGlobalPrefix('api/v1');
