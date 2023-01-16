@@ -7,6 +7,8 @@ import {
     Param,
     Delete,
     Query,
+    HttpCode,
+    HttpStatus,
 } from '@nestjs/common';
 import { WorkPositionService } from './work-position.service';
 import { CreateWorkPositionDto } from './dto/create-work-position.dto';
@@ -20,7 +22,7 @@ import { ValidRoles } from '@app/auth/interfaces';
 export class WorkPositionController {
     constructor(private readonly workPositionService: WorkPositionService) {}
 
-    //@Auth(ValidRoles.admin)
+    @Auth(ValidRoles.admin)
     @Post()
     create(@Body() createWorkPositionDto: CreateWorkPositionDto) {
         return this.workPositionService.create(createWorkPositionDto);
@@ -49,7 +51,8 @@ export class WorkPositionController {
 
     @Auth(ValidRoles.admin)
     @Delete(':id')
-    remove(@Param('id', ParseMongoIdPipe) id: string) {
-        return this.workPositionService.remove(id);
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async remove(@Param('id', ParseMongoIdPipe) id: string) {
+        return await this.workPositionService.remove(id);
     }
 }

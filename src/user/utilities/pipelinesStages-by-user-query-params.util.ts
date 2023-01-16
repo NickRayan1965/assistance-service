@@ -3,6 +3,7 @@ import {
     pipeLinesStageToFilterSimpleNames,
     pipelineStageToConnectToNestedObject,
 } from '@app/common/pipeLineStages';
+import { pipelineStagesByQueryParams } from '@app/common/utilities/pipelineStagesBasicsQueryParams.util';
 import { PipelineStage } from 'mongoose';
 import { UserQueryParamsDto } from '../dto/user-query-params.dto';
 
@@ -10,18 +11,12 @@ export const pipelineStagesByUserQueryParams = (
     user_query_params: UserQueryParamsDto,
     fromHourRegisterService = false,
 ) => {
-    const pipelinesStages: PipelineStage[] = [{ $match: {} }];
-    const {
-        all,
-        inactive,
-        limit,
-        offset,
-        fullNameComplex,
-        workPosition,
-        fullNameSimple,
-    } = user_query_params;
-    if (!all) pipelinesStages[0]['$match'].isActive = true;
-    if (inactive) pipelinesStages[0]['$match'].isActive = false;
+    const pipelinesStages: PipelineStage[] = pipelineStagesByQueryParams(
+        user_query_params,
+        false,
+    );
+    const { fullNameComplex, workPosition, fullNameSimple } = user_query_params;
+
     const workPositionPipelinesStages = pipelineStageToConnectToNestedObject({
         from: 'workpositions',
         localField: fromHourRegisterService
@@ -49,8 +44,10 @@ export const pipelineStagesByUserQueryParams = (
             ),
         );
     }
-    if (!fromHourRegisterService)
+    if (!fromHourRegisterService) {
+        const { limit, offset } = user_query_params;
         pipelinesStages.push({ $skip: limit * offset });
-    if (!fromHourRegisterService) pipelinesStages.push({ $limit: limit });
+        pipelinesStages.push({ $limit: limit });
+    }
     return pipelinesStages;
 };

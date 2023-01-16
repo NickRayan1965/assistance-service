@@ -35,11 +35,11 @@ export class UserController {
     }
     @Auth(ValidRoles.admin)
     @Patch(':id')
-    updateUser(
+    async updateUser(
         @Param('id', ParseMongoIdPipe) id: string,
         @Body() updateUserDto: UpdateUserDto,
     ): Promise<User> {
-        return this.userService.updateOneUser(id, updateUserDto);
+        return await this.userService.updateOneUser(id, updateUserDto);
     }
     @Auth(ValidRoles.admin)
     @Delete(':id')

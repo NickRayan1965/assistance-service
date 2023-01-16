@@ -19,11 +19,15 @@ import { UserQueryParamsDto } from '@app/user/dto/user-query-params.dto';
 import { pipelineStagesByUserQueryParams } from '@app/user/utilities/pipelinesStages-by-user-query-params.util';
 import { getUserAdminStub } from '@app/../test/stubs/auth/userAdmin.stub';
 import { UpdateUserDto } from '@app/user/dto/update-user.dto';
-import { HourRegister } from '@app/hour-register/entities/hour-register.entity';
 import { WorkPosition } from '@app/work-position/entities/work-position.entity';
 import { populateWorkPositionInDb } from './common/utilities/populateWorkPositionsInDb.util';
 import { BasicsQueryParamsDto } from '@app/common/dto/basics-query-params.dto';
 import { getQueryParamsFromObject } from './common/utilities/getQueryParamsFromObject.util';
+import { pipelineStagesByQueryParams } from '@app/common/utilities/pipelineStagesBasicsQueryParams.util';
+import { UpdateWorkPositionDto } from '@app/work-position/dto/update-work-position.dto';
+import { stubWorkPosition } from '@app/../test/stubs/work-position/random-work-position.stub';
+import { hourRandomGenerator } from '@app/common/utilities/hour-random-generator.util';
+import { ValidTimes } from '@app/seed/interfaces/valid-times';
 describe('App (e2e)', () => {
     let app: NestApplication;
     let dbConnection: Connection;
@@ -31,7 +35,7 @@ describe('App (e2e)', () => {
     let usersInDbAndJwts: UsersAndJwts;
     let moduleRef: TestingModule;
     let allUsersInDb: User[];
-    let allHourRegistersInDb: HourRegister[];
+    //let allHourRegistersInDb: HourRegister[];
     let allWorkPositionInDb: WorkPosition[];
     const checkUserInDbByEmail = async (email: string): Promise<boolean> => {
         return Boolean(
@@ -752,7 +756,7 @@ describe('App (e2e)', () => {
                 it('deberia devolver un status 403', async () => {
                     const userToDelete =
                         usersInDbAndJwts.employed.userInDb.user;
-                    const { body, status } = await requestDeleteUserById(
+                    const { status } = await requestDeleteUserById(
                         userToDelete._id.toString(),
                         usersInDbAndJwts.employed.jwt,
                     );
@@ -769,7 +773,7 @@ describe('App (e2e)', () => {
                 it('deberia devolver un status 401', async () => {
                     const userToDelete =
                         usersInDbAndJwts.employed.userInDb.user;
-                    const { body, status } = await requestDeleteUserById(
+                    const { status } = await requestDeleteUserById(
                         userToDelete._id.toString(),
                         usersInDbAndJwts.noRoles.jwt,
                     );
@@ -846,12 +850,332 @@ describe('App (e2e)', () => {
                     const { body, status } = await requesGetAllWorkPositions(
                         usersInDbAndJwts.employed.jwt,
                     );
-                    const work_position_actives = allWorkPositionInDb.filter(
-                        (work_position: WorkPosition) => work_position.isActive,
+                    expect(status).toBe(HttpStatus.FORBIDDEN);
+                    expect(Array.isArray(body)).toBeFalsy();
+                });
+            });
+            describe('Sin query params y con un jwt sin roles', () => {
+                it('deberia devover un status 401', async () => {
+                    const { body, status } = await requesGetAllWorkPositions(
+                        usersInDbAndJwts.noRoles.jwt,
+                    );
+                    expect(status).toBe(HttpStatus.UNAUTHORIZED);
+                    expect(Array.isArray(body)).toBeFalsy();
+                });
+            });
+            describe('Con query params validos (sin banderas que no se deben repetir ni valor extras) y con un jwt valido (admin)', () => {
+                it('deberia devolver un status 200 y una lista de `work positions` que cumpla con las caracteristicas indicadas en los Query Params', async () => {
+                    const basic_query_params = new BasicsQueryParamsDto();
+                    basic_query_params.inactive = true;
+                    basic_query_params.limit = allWorkPositionInDb.length - 1;
+                    const { body, status } = await requesGetAllWorkPositions(
+                        usersInDbAndJwts.admin.jwt,
+                        basic_query_params,
+                    );
+                    const workPositionsExpected = await dbConnection
+                        .collection('workpositions')
+                        .aggregate(
+                            pipelineStagesByQueryParams(basic_query_params),
+                        )
+                        .toArray();
+                    expect(status).toBe(HttpStatus.OK);
+                    expect(body).toStrictEqual(toJSON(workPositionsExpected));
+                });
+            });
+            describe('Con query params invalidos y campos extras (que no deberian estar) con un jwt valido (admin)', () => {
+                it('deberia devolver un status 400', async () => {
+                    const invalid_basic_query_params =
+                        new BasicsQueryParamsDto();
+                    invalid_basic_query_params.all = true;
+                    invalid_basic_query_params.inactive = true;
+                    invalid_basic_query_params.limit = -1200;
+                    const { body, status } = await requesGetAllWorkPositions(
+                        usersInDbAndJwts.admin.jwt,
+                        { ...invalid_basic_query_params, campoextra: 1 } as any,
+                    );
+                    expect(status).toBe(HttpStatus.BAD_REQUEST);
+                    expect(Array.isArray(body)).toBeFalsy();
+                });
+            });
+        });
+        describe('/GET /{id}', () => {
+            const requestGetWorkPositionById = async (
+                id: string,
+                jwt: string,
+            ) => {
+                return await request(app.getHttpServer())
+                    .get(`${pathController}/${id}`)
+                    .set('Authorization', `Bearer ${jwt}`);
+            };
+            describe('Id existente y un jwt valido (admin)', () => {
+                it('deberia devolver un status 200 y un json con el registro', async () => {
+                    const { body, status } = await requestGetWorkPositionById(
+                        usersInDbAndJwts.work_position.toString(),
+                        usersInDbAndJwts.admin.jwt,
+                    );
+                    const work_position = allWorkPositionInDb.find(
+                        (w) =>
+                            w._id.toString() ===
+                            usersInDbAndJwts.work_position.toString(),
+                    );
+                    expect(status).toBe(HttpStatus.OK);
+                    expect(body).toStrictEqual(toJSON(work_position));
+                });
+            });
+            describe('Id existente y un jwt con rol no admitido (employed)', () => {
+                it('deberia devolver un status 403', async () => {
+                    const { body, status } = await requestGetWorkPositionById(
+                        usersInDbAndJwts.work_position.toString(),
+                        usersInDbAndJwts.employed.jwt,
                     );
                     expect(status).toBe(HttpStatus.FORBIDDEN);
-                    expect(body.length).toBe(work_position_actives.length);
-                    expect(body).toStrictEqual(toJSON(work_position_actives));
+                    expect(body._id).toBeUndefined();
+                });
+            });
+            describe('Id existente y un jwt sin roles', () => {
+                it('deberia devolver un status 401', async () => {
+                    const { body, status } = await requestGetWorkPositionById(
+                        usersInDbAndJwts.work_position.toString(),
+                        usersInDbAndJwts.noRoles.jwt,
+                    );
+                    expect(status).toBe(HttpStatus.UNAUTHORIZED);
+                    expect(body._id).toBeUndefined();
+                });
+            });
+            describe('Id inexistente y un jwt valido', () => {
+                it('deberia devolver un status 404', async () => {
+                    const inexisting_id = new Types.ObjectId().toString();
+                    const { body, status } = await requestGetWorkPositionById(
+                        inexisting_id,
+                        usersInDbAndJwts.admin.jwt,
+                    );
+                    expect(status).toBe(HttpStatus.NOT_FOUND);
+                    expect(body._id).toBeUndefined();
+                });
+            });
+            describe('Id invalido (no es un mongoId) y un jwt valido', () => {
+                it('deberia devolver un status 400', async () => {
+                    const invalid_id = 'id_invalido';
+                    const { body, status } = await requestGetWorkPositionById(
+                        invalid_id,
+                        usersInDbAndJwts.admin.jwt,
+                    );
+                    expect(status).toBe(HttpStatus.BAD_REQUEST);
+                    expect(body._id).toBeUndefined();
+                });
+            });
+        });
+        describe('/PATCH /{id}', () => {
+            const requestPatchWorkPositionById = async (
+                id: string,
+                workPositionUpdates: Partial<UpdateWorkPositionDto>,
+                jwt?: string,
+            ) => {
+                return await request(app.getHttpServer())
+                    .patch(`${pathController}/${id}`)
+                    .set('Authorization', `Bearer ${jwt}`)
+                    .send(toJSON(workPositionUpdates));
+            };
+            describe('Id existente, datos correctos para actualizar  y jwt admin', () => {
+                it('deberia devolver un status 200 y un json con el `work position` actualizado', async () => {
+                    const workPositionToTest = stubWorkPosition(true);
+                    await dbConnection
+                        .collection('workpositions')
+                        .insertOne(workPositionToTest);
+                    //
+                    workPositionToTest.description = 'Nueva descripcion';
+                    workPositionToTest.work_start_time = hourRandomGenerator(
+                        ValidTimes.START_TIME,
+                    );
+                    const updates: Partial<UpdateWorkPositionDto> = {
+                        description: workPositionToTest.description,
+                        work_start_time: workPositionToTest.work_start_time,
+                    };
+                    //
+                    const { body, status } = await requestPatchWorkPositionById(
+                        workPositionToTest._id.toString(),
+                        updates,
+                        usersInDbAndJwts.admin.jwt,
+                    );
+                    expect(status).toBe(HttpStatus.OK);
+                    expect(body).toMatchObject(toJSON(workPositionToTest));
+                });
+            });
+            describe('Id existente, datos correctos y un jwt no valido (employed)', () => {
+                it('deberia devolver un status 403', async () => {
+                    const workPositionToTest = stubWorkPosition(true);
+                    await dbConnection
+                        .collection('workpositions')
+                        .insertOne(workPositionToTest);
+                    workPositionToTest.description = 'NUEVO APELLIDO';
+                    workPositionToTest.work_end_time = hourRandomGenerator(
+                        ValidTimes.END_TIME,
+                    );
+                    const updates: Partial<UpdateWorkPositionDto> = {
+                        description: workPositionToTest.description,
+                        work_end_time: workPositionToTest.work_end_time,
+                    };
+                    const { body, status } = await requestPatchWorkPositionById(
+                        workPositionToTest._id.toString(),
+                        updates,
+                        usersInDbAndJwts.employed.jwt,
+                    );
+                    expect(status).toBe(HttpStatus.FORBIDDEN);
+                    expect(body._id).toBeUndefined();
+                });
+            });
+            describe('Id existente, datos correctos y jwt valido pero con un `NAME` que ya existe', () => {
+                it('deberia devolver un status 404', async () => {
+                    const workPositionToTest = stubWorkPosition(true);
+                    await dbConnection
+                        .collection('workpositions')
+                        .insertOne(workPositionToTest);
+                    //
+                    workPositionToTest.description = 'NUEVO APELLIDO';
+                    workPositionToTest.work_end_time = hourRandomGenerator(
+                        ValidTimes.END_TIME,
+                    );
+                    const usedEmail: string = (
+                        await dbConnection
+                            .collection('workpositions')
+                            .findOne({ _id: usersInDbAndJwts.work_position })
+                    ).name;
+                    workPositionToTest.name = usedEmail;
+                    const updates: Partial<UpdateWorkPositionDto> = {
+                        description: workPositionToTest.description,
+                        work_end_time: workPositionToTest.work_end_time,
+                        name: workPositionToTest.name,
+                    };
+                    //
+                    const { body, status } = await requestPatchWorkPositionById(
+                        workPositionToTest._id.toString(),
+                        updates,
+                        usersInDbAndJwts.admin.jwt,
+                    );
+                    expect(status).toBe(HttpStatus.BAD_REQUEST);
+                    expect(body._id).toBeUndefined();
+                });
+            });
+            describe('Id existente, datos incorrectos y un jwt valido', () => {
+                it('deberia devolver un status 400', async () => {
+                    const workPositionToTest = stubWorkPosition(true) as any;
+                    await dbConnection
+                        .collection('workpostions')
+                        .insertOne(workPositionToTest);
+                    const updates = {
+                        name: 132,
+                        description: 123,
+                        work_end_time: new Date(),
+                    } as any;
+                    const { body, status } = await requestPatchWorkPositionById(
+                        workPositionToTest._id.toString(),
+                        updates,
+                        usersInDbAndJwts.admin.jwt,
+                    );
+                    expect(status).toBe(HttpStatus.BAD_REQUEST);
+                    expect(body._id).toBeUndefined();
+                });
+            });
+
+            describe('Id que no esta en db, datos correctos para actualizar y jwt admin', () => {
+                it('deberia devolver un status 404', async () => {
+                    //
+                    const { body, status } = await requestPatchWorkPositionById(
+                        new Types.ObjectId().toString(),
+                        { description: 'Descripcion' },
+                        usersInDbAndJwts.admin.jwt,
+                    );
+                    expect(status).toBe(HttpStatus.NOT_FOUND);
+                    expect(body._id).toBeUndefined();
+                });
+            });
+        });
+        describe('/DELETE /{id} (chance the value of the property `isActive` to false))', () => {
+            const requestDeleteWorkPositionById = async (
+                id: string,
+                jwt: string,
+            ) => {
+                return await request(app.getHttpServer())
+                    .delete(`${pathController}/${id}`)
+                    .set('Authorization', `Bearer ${jwt}`);
+            };
+            describe('Id existente, jwt valido (admin)', () => {
+                it('deberia devolver un status 204', async () => {
+                    const idWorkPositionToDelete =
+                        usersInDbAndJwts.work_position;
+                    const { body, status } =
+                        await requestDeleteWorkPositionById(
+                            idWorkPositionToDelete.toString(),
+                            usersInDbAndJwts.admin.jwt,
+                        );
+                    const isActive = (
+                        await dbConnection
+                            .collection('workpositions')
+                            .findOne({ _id: idWorkPositionToDelete })
+                    ).isActive;
+                    expect(status).toBe(HttpStatus.NO_CONTENT);
+                    expect(isActive).toBeFalsy();
+                    expect(Object.keys(body).length).toBe(0);
+                    await dbConnection
+                        .collection('workpositions')
+                        .updateOne(
+                            { _id: idWorkPositionToDelete },
+                            { $set: { isActive: true } },
+                        );
+                });
+            });
+            describe('Id existente, jwt de un usuario sin roles requeridos (employed)', () => {
+                it('deberia devolver un status 403', async () => {
+                    const idWorkPositionToDelete =
+                        usersInDbAndJwts.work_position;
+                    const { status } = await requestDeleteWorkPositionById(
+                        idWorkPositionToDelete.toString(),
+                        usersInDbAndJwts.employed.jwt,
+                    );
+                    const isActive = (
+                        await dbConnection
+                            .collection('workpositions')
+                            .findOne({ _id: idWorkPositionToDelete })
+                    ).isActive;
+                    expect(status).toBe(HttpStatus.FORBIDDEN);
+                    expect(isActive).toBeTruthy();
+                });
+            });
+            describe('Id existente, jwt de un usuario sin roles', () => {
+                it('deberia devolver un status 401', async () => {
+                    const idWorkPositionToDelete =
+                        usersInDbAndJwts.work_position;
+                    const { status } = await requestDeleteWorkPositionById(
+                        idWorkPositionToDelete._id.toString(),
+                        usersInDbAndJwts.noRoles.jwt,
+                    );
+                    const isActive = (
+                        await dbConnection
+                            .collection('workpositions')
+                            .findOne({ _id: idWorkPositionToDelete })
+                    ).isActive;
+                    expect(status).toBe(HttpStatus.UNAUTHORIZED);
+                    expect(isActive).toBeTruthy();
+                });
+            });
+            describe('Id que no esta en db y jwt valido (admin)', () => {
+                it('deberia devolver un status 404', async () => {
+                    const id = new Types.ObjectId();
+                    const { status } = await requestDeleteWorkPositionById(
+                        id.toString(),
+                        usersInDbAndJwts.admin.jwt,
+                    );
+                    expect(status).toBe(HttpStatus.NOT_FOUND);
+                });
+            });
+            describe('Id invalido (no es un mongoId) y jwt valido (admin)', () => {
+                it('deberia devolver un status 400', async () => {
+                    const id = 'mongoIdInvalido';
+                    const { status } = await requestDeleteWorkPositionById(
+                        id,
+                        usersInDbAndJwts.admin.jwt,
+                    );
+                    expect(status).toBe(HttpStatus.BAD_REQUEST);
                 });
             });
         });

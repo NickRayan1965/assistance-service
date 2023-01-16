@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateWorkPositionDto } from './dto/create-work-position.dto';
 import { UpdateWorkPositionDto } from './dto/update-work-position.dto';
 import { WorkPositionRepository } from './work-position.repository';
@@ -66,13 +66,18 @@ export class WorkPositionService {
                 );
             return work_position_updated;
         } catch (error) {
+            if (error.status == HttpStatus.NOT_FOUND) throw error;
             handleExceptions(error, this.nameEntity);
         }
     }
 
     async remove(id: string): Promise<void> {
-        await this.workPositionRepository.findByIdAndUpdate(id, {
-            isActive: false,
-        });
+        await this.workPositionRepository.findByIdAndUpdate(
+            id,
+            {
+                isActive: false,
+            },
+            true,
+        );
     }
 }

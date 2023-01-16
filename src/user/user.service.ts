@@ -1,15 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { User, UserDocument } from '@app/auth/entities/user.entity';
 import { UserRepository } from '@app/auth/users.repository';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { handleExceptions } from '@app/common/errors/handleExceptions';
-import * as bcrypt from 'bcrypt';
 import { replaceDoubleSpacesAndTrim } from '@app/common/func/replaceDoubleSpacesAndTrim.func';
 import { ValidateResourceOwner } from '@app/auth/guards';
 import { WorkPositionRepository } from '@app/work-position/work-position.repository';
 import { Types } from 'mongoose';
 import { UserQueryParamsDto } from './dto/user-query-params.dto';
 import { pipelineStagesByUserQueryParams } from './utilities/pipelinesStages-by-user-query-params.util';
+import { Encrypter } from '@app/common/utilities/encrypter';
 @Injectable()
 export class UserService {
     private readonly nameEntity = User.name;
@@ -48,24 +48,25 @@ export class UserService {
             );
         }
         const { password } = updateUserDto;
-        if (password) updateUserDto.password = bcrypt.hashSync(password, 10);
+        if (password) updateUserDto.password = Encrypter.encrypt(password);
         if (updateUserDto.phone_number)
             updateUserDto.phone_number = replaceDoubleSpacesAndTrim(
                 updateUserDto.phone_number,
             );
         let userUpdated: UserDocument;
         try {
-            userUpdated = await this.userRepository.findByIdAndUpdate(id, {
-                ...updateUserDto,
-                updatedAt: new Date(),
-            } as User);
+            userUpdated = await this.userRepository.findByIdAndUpdate(
+                id,
+                {
+                    ...updateUserDto,
+                    updatedAt: new Date(),
+                } as User,
+                true,
+            );
         } catch (error) {
+            if (error.status == HttpStatus.NOT_FOUND) throw error;
             handleExceptions(error, this.nameEntity);
         }
-        if (!userUpdated)
-            throw new NotFoundException(
-                `No existe el usuario con el id: ${id}`,
-            );
         return await userUpdated.populate('work_position');
     }
     async deleteOneUser(id: string) {
