@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '@app/auth/users.repository';
 import { HourRegisterRepository } from '@app/hour-register/hour-register.repository';
 import { WorkPositionRepository } from '@app/work-position/work-position.repository';
@@ -27,6 +27,7 @@ export class SeedService {
         private readonly workPositionRepository: WorkPositionRepository,
         private readonly hourRegisterRepository: HourRegisterRepository,
         private readonly configService: ConfigService,
+        private readonly looger = new Logger(SeedService.name),
     ) {}
 
     async populateDB(userSeed: UserSeed) {
@@ -189,7 +190,9 @@ export class SeedService {
             users_credentials: userCredentials,
         };
         console.timeEnd('Completado');
-
+        this.looger.log(
+            `Seed Execute. ${workPositionListToCreate.length} inserted workPositions . ${userListToCreate.length} inserted users. ${hourRegisterListToCreate.length} inserted HourRegisters`,
+        );
         return seedResponse;
     }
 }

@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { WorkPositionModule } from './work-position/work-position.module';
 import { HourRegisterModule } from './hour-register/hour-register.module';
 import { SeedModule } from './seed/seed.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { SeedModule } from './seed/seed.module';
         WorkPositionModule,
         HourRegisterModule,
         SeedModule,
+        EventEmitterModule.forRoot(),
     ],
     controllers: [],
     providers: [],
