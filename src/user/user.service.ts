@@ -26,11 +26,11 @@ export class UserService {
         return this.userRepository.aggregate<User>(pipelinesStages);
     }
 
-    async getUserById(id: string, userPayload: UserDocument): Promise<User> {
+    async getUserById(id: string, requestingUser: User): Promise<User> {
         const user = await (
             await this.userRepository.findById(id, true)
         ).populate('work_position');
-        ValidateResourceOwner(userPayload, user, '_id');
+        ValidateResourceOwner(requestingUser, user, '_id');
         return user;
     }
 

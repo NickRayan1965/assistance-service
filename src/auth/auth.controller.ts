@@ -14,6 +14,7 @@ import { Auth } from './decorators';
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
+
     @ApiBearerAuth()
     @ApiResponse({
         status: HttpStatus.CREATED,
@@ -22,21 +23,26 @@ export class AuthController {
     })
     @ApiResponse({
         status: HttpStatus.UNAUTHORIZED,
-        description: 'Usuario creado correctamente',
+        description: 'Token inválido',
     })
     @ApiResponse({
         status: HttpStatus.FORBIDDEN,
-        description: 'El Usuario necesita un rol válido para este endpoint',
+        description: 'Token sin autorización',
     })
     @Auth(ValidRoles.admin)
     @Post('register')
     register(@Body() createAuthDto: CreateUserDto) {
         return this.authService.registerUser(createAuthDto);
     }
+
     @ApiResponse({
         status: HttpStatus.OK,
         type: CreateOrLoginResponseDto,
         description: 'Inicio de sesión correcto',
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'Credenciales Incorrectas',
     })
     @HttpCode(HttpStatus.OK)
     @Post('login')

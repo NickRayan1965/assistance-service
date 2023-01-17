@@ -28,6 +28,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             throw new UnauthorizedException(
                 'El usuario no tiene ningún rol, hable con un administrador',
             );
-        return user;
+        return user as User;
     }
 }

@@ -28,6 +28,10 @@ import { UpdateWorkPositionDto } from '@app/work-position/dto/update-work-positi
 import { stubWorkPosition } from '@app/../test/stubs/work-position/random-work-position.stub';
 import { hourRandomGenerator } from '@app/common/utilities/hour-random-generator.util';
 import { ValidTimes } from '@app/seed/interfaces/valid-times';
+import { populateHourRegistersInDbAndGetRelated } from './common/utilities/populateHourRegisters.util';
+import { HourRegister } from '@app/hour-register/entities/hour-register.entity';
+import { HourRegisterQueryParamDto } from '@app/hour-register/dto/hour-register-query-params.dto';
+import { pipelineStagesByHourRegisterQ_Params } from '@app/hour-register/utilities/pipelinesStages-by-hour-register-query-params.util';
 describe('App (e2e)', () => {
     let app: NestApplication;
     let dbConnection: Connection;
@@ -35,7 +39,7 @@ describe('App (e2e)', () => {
     let usersInDbAndJwts: UsersAndJwts;
     let moduleRef: TestingModule;
     let allUsersInDb: User[];
-    //let allHourRegistersInDb: HourRegister[];
+    let allHourRegistersInDb: HourRegister[];
     let allWorkPositionInDb: WorkPosition[];
     const checkUserInDbByEmail = async (email: string): Promise<boolean> => {
         return Boolean(
@@ -56,7 +60,7 @@ describe('App (e2e)', () => {
     });
 
     afterAll(async () => {
-        await cleanDb(dbConnection);
+        //await cleanDb(dbConnection);
         await moduleRef.close();
         await app.close();
     });
@@ -1177,6 +1181,61 @@ describe('App (e2e)', () => {
                     );
                     expect(status).toBe(HttpStatus.BAD_REQUEST);
                 });
+            });
+        });
+    });
+    describe('HourRegister noController (e2e)', () => {
+        const pathController = '/hour-register';
+        const requesGetAllHourRegisters = async (
+            jwt: string,
+            hourRegisterQueryParamDto?: Partial<HourRegisterQueryParamDto>,
+        ) => {
+            const query = getQueryParamsFromObject(hourRegisterQueryParamDto);
+            return await request(app.getHttpServer())
+                .get(`${pathController}${query}`)
+                .set('Authorization', `Bearer ${jwt}`);
+        };
+        beforeAll(async () => {
+            await cleanDb(dbConnection);
+            usersInDbAndJwts = await saveInDbAndGetUsersAndJwts(
+                dbConnection,
+                jwtService,
+            );
+            const n_work_positions = 5;
+            const n_users = 10;
+            const minDate = new Date();
+            const days = 20;
+            const maxDate = new Date();
+            maxDate.setDate(minDate.getDate() + days);
+            allHourRegistersInDb = await populateHourRegistersInDbAndGetRelated(
+                {
+                    n_users,
+                    n_work_positions,
+                    dbConnection,
+                    maxDate,
+                    minDate,
+                },
+            );
+        });
+        describe('Sin query params y con un jwt valido (admin)', () => {
+            it('deberia devolver un status 200 y una lista con `hour registers` con el estado activo', async () => {
+                const queryParamsByDefault = new HourRegisterQueryParamDto();
+                const { body, status } = await requesGetAllHourRegisters(
+                    usersInDbAndJwts.admin.jwt,
+                    queryParamsByDefault,
+                );
+                const hour_registers_activess = await dbConnection
+                    .collection('hourregisters')
+                    .aggregate([
+                        ...pipelineStagesByHourRegisterQ_Params(
+                            queryParamsByDefault,
+                        ),
+                    ])
+                    .toArray();
+
+                expect(status).toBe(HttpStatus.OK);
+                expect(body.length).toBe(hour_registers_activess.length);
+                expect(body).toStrictEqual(toJSON(hour_registers_activess));
             });
         });
     });

@@ -1,19 +1,19 @@
 import { ForbiddenException } from '@nestjs/common';
-import { UserDocument } from '../entities/user.entity';
+import { User } from '../entities/user.entity';
 import { ValidRoles } from '../interfaces';
 interface MongoObject {
     _id: any;
     [k: string]: any;
 }
 export const ValidateResourceOwner = (
-    user: UserDocument,
+    requestingUser: User,
     resourse: MongoObject,
     keyUser: string,
 ) => {
     const rolesWithAccessToOtherResources = [ValidRoles.admin];
     if (
-        user._id.toString() != resourse[keyUser].toString() &&
-        !user.roles.some((role) =>
+        requestingUser._id.toString() != resourse[keyUser].toString() &&
+        !requestingUser.roles.some((role) =>
             rolesWithAccessToOtherResources.includes(role),
         )
     )

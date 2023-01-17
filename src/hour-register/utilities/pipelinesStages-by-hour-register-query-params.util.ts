@@ -3,7 +3,7 @@ import { pipelineStagesByUserQueryParams } from '@app/user/utilities/pipelinesSt
 import { PipelineStage } from 'mongoose';
 import { HourRegisterQueryParamDto } from '../dto/hour-register-query-params.dto';
 
-export const pipelineStagesByHourRegisterQueryParams = (
+export const pipelineStagesByHourRegisterQ_Params = (
     hour_register_query_params: HourRegisterQueryParamDto,
 ) => {
     const { limit, offset, maxDate, minDate, userId } =

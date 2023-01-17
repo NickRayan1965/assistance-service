@@ -51,7 +51,12 @@ export class CreateUserDto {
     @IsUppercase()
     lastnames: string;
 
-    @ApiProperty({ minLength: 8, maxLength: 8, required: true })
+    @ApiProperty({
+        minLength: 8,
+        maxLength: 8,
+        required: true,
+        default: '72341234',
+    })
     @IsString()
     @Length(8, 8)
     dni: string;

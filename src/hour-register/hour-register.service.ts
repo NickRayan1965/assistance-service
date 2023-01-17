@@ -8,7 +8,10 @@ import {
 } from './entities/hour-register.entity';
 import { HourRegisterUtilities } from './utilities/hour-register.util';
 import { HourRegisterQueryParamDto } from './dto/hour-register-query-params.dto';
-import { pipelineStagesByHourRegisterQueryParams } from './utilities/pipelinesStages-by-hour-register-query-params.util';
+import { pipelineStagesByHourRegisterQ_Params } from './utilities/pipelinesStages-by-hour-register-query-params.util';
+import { User } from '@app/auth/entities/user.entity';
+import { WorkPosition } from '@app/work-position/entities/work-position.entity';
+import { ValidateResourceOwner } from '@app/auth/guards';
 
 @Injectable()
 export class HourRegisterService {
@@ -22,7 +25,9 @@ export class HourRegisterService {
     getOrCreateByUserIdAndDate(
         userId: string,
         date: Date,
+        requestingUser: User,
     ): Promise<HourRegister> {
+        ValidateResourceOwner(requestingUser, { _id: userId }, '_id');
         return this.hourRegisterRepository.getOrCreateByUserIdAndDate(
             userId,
             date,
@@ -30,8 +35,17 @@ export class HourRegisterService {
     }
     findAll(
         hour_register_query_paramsDto: HourRegisterQueryParamDto,
+        requestingUser: User,
     ): Promise<HourRegister[]> {
-        const pipelinesStages = pipelineStagesByHourRegisterQueryParams(
+        if (hour_register_query_paramsDto.userId)
+            ValidateResourceOwner(
+                requestingUser,
+                {
+                    _id: hour_register_query_paramsDto.userId,
+                },
+                '_id',
+            );
+        const pipelinesStages = pipelineStagesByHourRegisterQ_Params(
             hour_register_query_paramsDto,
         );
         return this.hourRegisterRepository.aggregate<HourRegister>(
@@ -43,7 +57,15 @@ export class HourRegisterService {
         date: Date,
         hour_minutes: string,
         name_time: string,
+        requestingUser: User,
     ) {
+        ValidateResourceOwner(
+            requestingUser,
+            {
+                _id: userId,
+            },
+            '_id',
+        );
         const timestamps_fields = Object.keys({
             lunch_end_time: DEFAULT_EMPY_TIME,
             lunch_start_time: DEFAULT_EMPY_TIME,
@@ -151,6 +173,7 @@ export class HourRegisterService {
             path: 'user',
             populate: { path: 'work_position' },
         });
+        console.log({ populatedHourRegister });
         if (
             hour_register.start_time != DEFAULT_EMPY_TIME &&
             hour_register.end_time != DEFAULT_EMPY_TIME
@@ -158,6 +181,8 @@ export class HourRegisterService {
             const updatedFields: CalculatedTimeFields =
                 HourRegisterUtilities.getCalculatedTimeFields(
                     populatedHourRegister,
+                    (populatedHourRegister.user as User)
+                        .work_position as WorkPosition,
                 );
             hour_register = {
                 ...hour_register,

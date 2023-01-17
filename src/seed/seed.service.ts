@@ -10,14 +10,14 @@ import {
     CalculatedTimeFields,
     HourRegister,
 } from '@app/hour-register/entities/hour-register.entity';
-import { UserCredentialsDto } from './interfaces/user-credentials-response.dto';
+import { UserCredentialsDto } from './dto/user-credentials-response.dto';
 import { faker } from '@faker-js/faker';
 import { Types } from 'mongoose';
 import { ValidTimes } from './interfaces/valid-times';
 import { ValidRoles } from '@app/auth/interfaces';
 import { Encrypter } from '@app/common/utilities/encrypter';
 import { HourRegisterUtilities } from '@app/hour-register/utilities/hour-register.util';
-import { SeedResponse } from './interfaces/seed-response.dto';
+import { SeedResponse } from './dto/seed-response.dto';
 import { getRandomInt } from '@app/common/utilities/random-int.util';
 import { hourRandomGenerator } from '@app/common/utilities/hour-random-generator.util';
 @Injectable()
@@ -166,10 +166,10 @@ export class SeedService {
                     isActive: getRandomInt(0, 4) >= 1 ? true : false,
                 };
                 const calculatedTimeFields: CalculatedTimeFields =
-                    HourRegisterUtilities.getCalculatedTimeFields({
-                        ...hourRegister,
-                        user: userRelated,
-                    });
+                    HourRegisterUtilities.getCalculatedTimeFields(
+                        hourRegister,
+                        userRelated.work_position,
+                    );
                 hourRegister = { ...hourRegister, ...calculatedTimeFields };
                 hourRegisterListToCreate.push(hourRegister as HourRegister);
             }
