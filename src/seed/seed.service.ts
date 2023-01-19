@@ -22,12 +22,12 @@ import { getRandomInt } from '@app/common/utilities/random-int.util';
 import { hourRandomGenerator } from '@app/common/utilities/hour-random-generator.util';
 @Injectable()
 export class SeedService {
+    private readonly logger = new Logger(SeedService.name);
     constructor(
         private readonly userRepository: UserRepository,
         private readonly workPositionRepository: WorkPositionRepository,
         private readonly hourRegisterRepository: HourRegisterRepository,
         private readonly configService: ConfigService,
-        private readonly looger = new Logger(SeedService.name),
     ) {}
 
     async populateDB(userSeed: UserSeed) {
@@ -190,7 +190,7 @@ export class SeedService {
             users_credentials: userCredentials,
         };
         console.timeEnd('Completado');
-        this.looger.log(
+        this.logger.log(
             `Seed Execute. ${workPositionListToCreate.length} inserted workPositions . ${userListToCreate.length} inserted users. ${hourRegisterListToCreate.length} inserted HourRegisters`,
         );
         return seedResponse;

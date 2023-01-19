@@ -15,4 +15,7 @@ export const EnvConfiguration = () => ({
     OFFSET: +process.env.OFFSET || OFFSET_ALTERNATIVE,
     PWD_SEED: process.env.PWD_SEED,
     USER_SEED: process.env.USER_SEED,
+    EMAIL_FOR_SWAGGER: process.env.EMAIL_FOR_SWAGGER,
+    PASSWORD_FOR_SWAGGER: process.env.PASSWORD_FOR_SWAGGER,
+    WORK_POSITION_FOR_SWAGGER: process.env.WORK_POSITION_FOR_SWAGGER,
 });

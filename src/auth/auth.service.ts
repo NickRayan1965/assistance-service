@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+    Injectable,
+    OnModuleInit,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { LoginUserDto, CreateUserDto } from './dto';
 import { UserRepository } from './users.repository';
 import { CreateOrLoginResponseDto } from './dto/create-or-login-response.dto';
@@ -10,14 +14,55 @@ import { replaceDoubleSpacesAndTrim } from '@app/common/func/replaceDoubleSpaces
 import { WorkPositionRepository } from '@app/work-position/work-position.repository';
 import { Types } from 'mongoose';
 import { Encrypter } from '@app/common/utilities/encrypter';
+import { getUserAdminStub } from 'test/e2e/stubs/auth/userAdmin.stub';
+import { ConfigService } from '@nestjs/config';
+import { hourRandomGenerator } from '@app/common/utilities/hour-random-generator.util';
+import { ValidTimes } from '@app/seed/interfaces/valid-times';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
     private readonly nameEntity = User.name;
     constructor(
         private readonly userRepository: UserRepository,
         private readonly jwtService: JwtService,
         private readonly workPositionRepository: WorkPositionRepository,
+        private readonly configService: ConfigService,
+        private readonly eventEmitter: EventEmitter2,
     ) {}
+    async onModuleInit() {
+        await this.userRepository.deleteMany({});
+        const email_for_swagger_env =
+            this.configService.getOrThrow<string>('EMAIL_FOR_SWAGGER');
+        const password_for_swagger_env = this.configService.getOrThrow<string>(
+            'PASSWORD_FOR_SWAGGER',
+        );
+        const work_position_for_swagger = this.configService.getOrThrow<string>(
+            'WORK_POSITION_FOR_SWAGGER',
+        );
+        let user = (await this.userRepository.findOne({
+            email: email_for_swagger_env,
+        })) as User;
+        if (!user) {
+            let work_position = await this.workPositionRepository.findOne({
+                name: work_position_for_swagger,
+            });
+            if (!work_position) {
+                work_position = await this.workPositionRepository.create({
+                    description: 'Posición de trabajo para Swagger',
+                    name: work_position_for_swagger,
+                    work_end_time: hourRandomGenerator(ValidTimes.END_TIME),
+                    work_start_time: hourRandomGenerator(ValidTimes.START_TIME),
+                });
+            }
+            const userData = getUserAdminStub({
+                work_position: new Types.ObjectId(work_position._id),
+                encrypt: false,
+            });
+            userData.email = email_for_swagger_env;
+            userData.password = Encrypter.encrypt(password_for_swagger_env);
+            user = await this.userRepository.create(userData);
+        }
+    }
     async registerUser(
         createUserDto: CreateUserDto,
     ): Promise<CreateOrLoginResponseDto> {
@@ -44,12 +89,18 @@ export class AuthService {
                 user,
                 jwt: this.getJwt({ id: user._id.toString() }),
             };
+            this.eventEmitter.emit('auth.created', user.email);
+            console.log({ horaLlamadaDeEvento: new Date() });
             return createUserResponse;
         } catch (error) {
             handleExceptions(error, this.nameEntity);
         }
     }
-
+    @OnEvent('auth.created')
+    handleSendWelcomeToEmails(email: string) {
+        console.log({ email });
+        console.log({ horaRecepcionDeEvento: new Date() });
+    }
     async loginUser(
         loginUserDto: LoginUserDto,
     ): Promise<CreateOrLoginResponseDto> {

@@ -16,8 +16,9 @@ import { ValidRoles } from '@app/auth/interfaces';
 import { ParseMongoIdPipe } from '@app/common/pipe/parse-mongo-id.pipe';
 import { User } from '@app/auth/entities/user.entity';
 import { UserQueryParamsDto } from './dto/user-query-params.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 @ApiTags('Users')
+@ApiBearerAuth()
 @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Datos enviados incorrectos',

@@ -103,6 +103,7 @@ export class CreateUserDto {
     @IsEnum(ValidRoles, { each: true })
     roles?: ValidRoles[];
 
+    @ApiProperty({ type: String })
     @IsMongoId()
     work_position: string | Types.ObjectId;
 }

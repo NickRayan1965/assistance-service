@@ -2,7 +2,7 @@ import { User } from '@app/auth/entities/user.entity';
 import { getRandomInt } from '@app/common/utilities/random-int.util';
 import { WorkPosition } from '@app/work-position/entities/work-position.entity';
 import { Connection, Types } from 'mongoose';
-import { getUserAdminStub } from '@app/../test/stubs/auth/userAdmin.stub';
+import { getUserAdminStub } from 'test/e2e/stubs/auth/userAdmin.stub';
 import { populateWorkPositionInDb } from './populateWorkPositionsInDb.util';
 export class UserPopulatedOptions {
     n_work_positions: number;

@@ -34,7 +34,6 @@ export class AuthController {
     register(@Body() createAuthDto: CreateUserDto) {
         return this.authService.registerUser(createAuthDto);
     }
-
     @ApiResponse({
         status: HttpStatus.OK,
         type: CreateOrLoginResponseDto,

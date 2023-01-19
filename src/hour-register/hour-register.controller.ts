@@ -15,10 +15,11 @@ import { ParseHoursMinutes24FPipe } from '@app/common/pipe/parse-hours-minutes24
 import { Auth, GetUser } from '@app/auth/decorators';
 import { ValidRoles } from '@app/auth/interfaces';
 import { HourRegisterQueryParamDto } from './dto/hour-register-query-params.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HourRegister } from './entities/hour-register.entity';
 import { User } from '@app/auth/entities/user.entity';
 @ApiTags('HourRegister')
+@ApiBearerAuth()
 @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Datos enviados incorrectos',
@@ -57,6 +58,8 @@ export class HourRegisterController {
         type: HourRegister,
         description: 'Devuelve el `hour register`; si no existe, lo crea',
     })
+    @ApiParam({ name: 'date', type: String })
+    @Auth(ValidRoles.admin, ValidRoles.employed)
     @Get('getOrCreate/:userId/:date')
     getOneOrCreate(
         @Param('userId', ParseMongoIdPipe) userId: string,
@@ -80,6 +83,8 @@ export class HourRegisterController {
         status: HttpStatus.NOT_FOUND,
         description: '`HourRegister` con el userId y fecha enviado inexistente',
     })
+    @ApiParam({ name: 'date', type: String })
+    @Auth(ValidRoles.admin, ValidRoles.employed)
     @Get('update/:userId/:date/:hour_minutes')
     setTimestampAndGetOne(
         @Query('name_time') name_time: string,

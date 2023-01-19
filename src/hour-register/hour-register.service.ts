@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { HourRegisterRepository } from './hour-register.repository';
 import {
     TimestampFields,
@@ -12,11 +12,14 @@ import { pipelineStagesByHourRegisterQ_Params } from './utilities/pipelinesStage
 import { User } from '@app/auth/entities/user.entity';
 import { WorkPosition } from '@app/work-position/entities/work-position.entity';
 import { ValidateResourceOwner } from '@app/auth/guards';
+import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
 export class HourRegisterService {
+    private readonly logger = new Logger(HourRegister.name);
     constructor(
         private readonly hourRegisterRepository: HourRegisterRepository,
+        private readonly schedulerRegistry: SchedulerRegistry,
     ) {}
     #hoursError = (name_time: string) =>
         new BadRequestException(
@@ -212,5 +215,11 @@ export class HourRegisterService {
             { isActive: false },
             true,
         );
+    }
+
+    @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
+    async deleteExpiredHourRegisters() {
+        await this.hourRegisterRepository.deleteMany({ isActive: false });
+        this.logger.log('Inactive HourRegister deleted');
     }
 }

@@ -20,6 +20,7 @@ import { ValidRoles } from '@app/auth/interfaces';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { WorkPosition } from './entities/work-position.entity';
 @ApiTags('WorkPosition')
+@ApiBearerAuth()
 @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Datos enviados incorrectos',
@@ -36,7 +37,6 @@ import { WorkPosition } from './entities/work-position.entity';
 export class WorkPositionController {
     constructor(private readonly workPositionService: WorkPositionService) {}
 
-    @ApiBearerAuth()
     @ApiResponse({
         status: HttpStatus.CREATED,
         type: WorkPosition,

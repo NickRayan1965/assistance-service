@@ -1,6 +1,6 @@
 import { WorkPosition } from '@app/work-position/entities/work-position.entity';
 import { Connection } from 'mongoose';
-import { stubWorkPosition } from '@app/../test/stubs/work-position/random-work-position.stub';
+import { stubWorkPosition } from 'test/e2e/stubs/work-position/random-work-position.stub';
 
 export const populateWorkPositionInDb = async (
     n_work_positions: number,

@@ -40,7 +40,7 @@ export class UserRepository implements IUserRepository {
         const query = this.userModel.find(userFilterQuery);
         if (offset) query.skip(offset * limit);
         if (limit) query.limit(limit);
-        return query.exec();
+        return query;
     }
     async findById(id: string, isRequest = false): Promise<UserDocument> {
         const user = await this.userModel.findById(id);
