@@ -20,6 +20,7 @@ import { HourRegisterUtilities } from '@app/hour-register/utilities/hour-registe
 import { SeedResponse } from './dto/seed-response.dto';
 import { getRandomInt } from '@app/common/utilities/random-int.util';
 import { hourRandomGenerator } from '@app/common/utilities/hour-random-generator.util';
+import { getUserAdminStub } from 'test/e2e/stubs/auth/userAdmin.stub';
 @Injectable()
 export class SeedService {
     private readonly logger = new Logger(SeedService.name);
@@ -32,7 +33,6 @@ export class SeedService {
 
     async populateDB(userSeed: UserSeed) {
         console.time('Completado');
-
         const pwd_seed = this.configService.getOrThrow<string>('PWD_SEED');
         const user_seed = this.configService.getOrThrow<string>('USER_SEED');
 
@@ -53,7 +53,31 @@ export class SeedService {
         const minDateForHourRegisters = new Date(2020, 0, 1);
         const maxDateForHourRegisters = new Date(2020, 5, 1);
         // un registro para cada usuario por dia
-
+        //swagger data
+        const email_for_swagger_env =
+            this.configService.getOrThrow<string>('EMAIL_FOR_SWAGGER');
+        const password_for_swagger_env = this.configService.getOrThrow<string>(
+            'PASSWORD_FOR_SWAGGER',
+        );
+        const work_position_for_swagger = this.configService.getOrThrow<string>(
+            'WORK_POSITION_FOR_SWAGGER',
+        );
+        const firstWorkPositionId = new Types.ObjectId();
+        const workPositionForSwagger: WorkPosition = {
+            _id: firstWorkPositionId,
+            description: 'Posición de trabajo para Swagger',
+            name: work_position_for_swagger,
+            work_end_time: hourRandomGenerator(ValidTimes.END_TIME),
+            work_start_time: hourRandomGenerator(ValidTimes.START_TIME),
+            isActive: true,
+        };
+        const userForSwagger = getUserAdminStub({
+            work_position: firstWorkPositionId,
+            encrypt: false,
+        });
+        userForSwagger.email = email_for_swagger_env;
+        userForSwagger.password = Encrypter.encrypt(password_for_swagger_env);
+        //
         const workPositionListToCreate: WorkPosition[] = [];
         const userListToCreate: Partial<User>[] = [];
         const hourRegisterListToCreate: HourRegister[] = [];
@@ -177,6 +201,8 @@ export class SeedService {
         }
         console.timeEnd('HourRegister Creation');
         console.time('Save in DB');
+        userListToCreate.push(userForSwagger);
+        workPositionListToCreate.push(workPositionForSwagger);
         await Promise.all([
             this.userRepository.insertMany(userListToCreate as User[]),
             this.workPositionRepository.insertMany(workPositionListToCreate),

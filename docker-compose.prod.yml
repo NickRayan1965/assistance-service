@@ -1,0 +1,25 @@
+version: '3'
+services:
+  serv-asistencias:
+    container_name: app-asistencias
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3000:3000"
+    links:
+      - mongo-db
+  mongo-db:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=nick
+      - MONGO_INITDB_ROOT_PASSWORD=1234
+    logging: 
+      driver: none
+    volumes:
+      - mongo-data:/data/db
+volumes:
+  mongo-data:

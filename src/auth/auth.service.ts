@@ -18,7 +18,6 @@ import { getUserAdminStub } from 'test/e2e/stubs/auth/userAdmin.stub';
 import { ConfigService } from '@nestjs/config';
 import { hourRandomGenerator } from '@app/common/utilities/hour-random-generator.util';
 import { ValidTimes } from '@app/seed/interfaces/valid-times';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 @Injectable()
 export class AuthService implements OnModuleInit {
     private readonly nameEntity = User.name;
@@ -27,7 +26,6 @@ export class AuthService implements OnModuleInit {
         private readonly jwtService: JwtService,
         private readonly workPositionRepository: WorkPositionRepository,
         private readonly configService: ConfigService,
-        private readonly eventEmitter: EventEmitter2,
     ) {}
     async onModuleInit() {
         await this.userRepository.deleteMany({});
@@ -89,17 +87,11 @@ export class AuthService implements OnModuleInit {
                 user,
                 jwt: this.getJwt({ id: user._id.toString() }),
             };
-            this.eventEmitter.emit('auth.created', user.email);
             console.log({ horaLlamadaDeEvento: new Date() });
             return createUserResponse;
         } catch (error) {
             handleExceptions(error, this.nameEntity);
         }
-    }
-    @OnEvent('auth.created')
-    handleSendWelcomeToEmails(email: string) {
-        console.log({ email });
-        console.log({ horaRecepcionDeEvento: new Date() });
     }
     async loginUser(
         loginUserDto: LoginUserDto,

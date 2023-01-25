@@ -1,0 +1,8 @@
+FROM node:16
+RUN mkdir -p /home/app/dist
+COPY ./dist /home/app/dist
+COPY package.json /home/app
+COPY .env /home/app
+WORKDIR /home/app
+RUN npm install --production
+CMD [ "node", "./dist/src/main"]

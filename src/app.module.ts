@@ -7,13 +7,11 @@ import { UserModule } from './user/user.module';
 import { WorkPositionModule } from './work-position/work-position.module';
 import { HourRegisterModule } from './hour-register/hour-register.module';
 import { SeedModule } from './seed/seed.module';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true, load: [EnvConfiguration] }),
-        EventEmitterModule.forRoot(),
         ScheduleModule.forRoot(),
         DatabaseModule,
         AuthModule,
