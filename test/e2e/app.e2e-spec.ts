@@ -397,7 +397,7 @@ describe('App (e2e)', () => {
             });
         });
     });
-    /* describe('User Controller (e2e)', () => {
+    describe('User Controller (e2e)', () => {
         const pathController = '/user';
         beforeAll(async () => {
             await cleanDb(dbConnection);
@@ -1181,7 +1181,7 @@ describe('App (e2e)', () => {
                 });
             });
         });
-    }); */
+    });
     /* describe('HourRegister noController (e2e)', () => {
         const pathController = '/hour-register';
         const requesGetAllHourRegisters = async (
