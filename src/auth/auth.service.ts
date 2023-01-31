@@ -86,7 +86,6 @@ export class AuthService implements OnModuleInit {
                 user,
                 jwt: this.getJwt({ id: user._id.toString() }),
             };
-            console.log({ horaLlamadaDeEvento: new Date() });
             return createUserResponse;
         } catch (error) {
             handleExceptions(error, this.nameEntity);
