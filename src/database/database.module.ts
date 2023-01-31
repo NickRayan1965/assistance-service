@@ -22,13 +22,15 @@ import { DatabaseSevice } from './database.service';
                 const authSource = isTestEnv
                     ? configService.get<string>('AUTH_SOURCE_TEST')
                     : configService.get<string>('AUTH_SOURCE_DEVELOPMENT');
-                return {
+
+                const options = {
                     uri,
                     user,
                     pass,
                     authSource,
                     family: 4,
                 };
+                return options;
             },
         }),
     ],

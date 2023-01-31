@@ -14,7 +14,7 @@ import { replaceDoubleSpacesAndTrim } from '@app/common/func/replaceDoubleSpaces
 import { WorkPositionRepository } from '@app/work-position/work-position.repository';
 import { Types } from 'mongoose';
 import { Encrypter } from '@app/common/utilities/encrypter';
-import { getUserAdminStub } from 'test/e2e/stubs/auth/userAdmin.stub';
+import { getUserAdminStub } from '@app/common/utilities/userAdmin.stub';
 import { ConfigService } from '@nestjs/config';
 import { hourRandomGenerator } from '@app/common/utilities/hour-random-generator.util';
 import { ValidTimes } from '@app/seed/interfaces/valid-times';
@@ -28,7 +28,6 @@ export class AuthService implements OnModuleInit {
         private readonly configService: ConfigService,
     ) {}
     async onModuleInit() {
-        await this.userRepository.deleteMany({});
         const email_for_swagger_env =
             this.configService.getOrThrow<string>('EMAIL_FOR_SWAGGER');
         const password_for_swagger_env = this.configService.getOrThrow<string>(

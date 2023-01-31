@@ -3,7 +3,7 @@ import {
     UserPopulatedOptions,
 } from './populateUsersInDB.util';
 import { HourRegister } from '@app/hour-register/entities/hour-register.entity';
-import { stubHourRegister } from 'test/e2e/stubs/hour-register/hour-register.stub';
+import { stubHourRegister } from '@app/../test/e2e/stubs/hour-register/hour-register.stub';
 import { pipelineStageToConnectToNestedObject } from '@app/common/pipeLineStages';
 export class HourRegisterPopulateOptions extends UserPopulatedOptions {
     minDate: Date;

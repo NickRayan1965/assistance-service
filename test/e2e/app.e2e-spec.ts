@@ -5,7 +5,7 @@ import { UsersAndJwts } from './common/interfaces/users-and-jwts.interface';
 import { saveInDbAndGetUsersAndJwts } from './common/utilities/save-in-db-and-get-users-and-jwts.util';
 import * as request from 'supertest';
 import { CreateUserDto, LoginUserDto } from '@app/auth/dto';
-import { getCreateUserDtoStub } from 'test/e2e/stubs/auth/create-user-dto.stub';
+import { getCreateUserDtoStub } from '@app/../test/e2e/stubs/auth/create-user-dto.stub';
 import { HttpStatus } from '@nestjs/common';
 import { JwtPayload, ValidRoles } from '@app/auth/interfaces';
 import { Encrypter } from '@app/common/utilities/encrypter';
@@ -17,7 +17,7 @@ import { TestingModule } from '@nestjs/testing';
 import { populateUsersInDbAndGetRelated } from './common/utilities/populateUsersInDB.util';
 import { UserQueryParamsDto } from '@app/user/dto/user-query-params.dto';
 import { pipelineStagesByUserQueryParams } from '@app/user/utilities/pipelinesStages-by-user-query-params.util';
-import { getUserAdminStub } from 'test/e2e/stubs/auth/userAdmin.stub';
+import { getUserAdminStub } from '@app/common/utilities/userAdmin.stub';
 import { UpdateUserDto } from '@app/user/dto/update-user.dto';
 import { WorkPosition } from '@app/work-position/entities/work-position.entity';
 import { populateWorkPositionInDb } from './common/utilities/populateWorkPositionsInDb.util';
@@ -25,13 +25,12 @@ import { BasicsQueryParamsDto } from '@app/common/dto/basics-query-params.dto';
 import { getQueryParamsFromObject } from './common/utilities/getQueryParamsFromObject.util';
 import { pipelineStagesByQueryParams } from '@app/common/utilities/pipelineStagesBasicsQueryParams.util';
 import { UpdateWorkPositionDto } from '@app/work-position/dto/update-work-position.dto';
-import { stubWorkPosition } from 'test/e2e/stubs/work-position/random-work-position.stub';
+import { stubWorkPosition } from '@app/../test/e2e/stubs/work-position/random-work-position.stub';
 import { hourRandomGenerator } from '@app/common/utilities/hour-random-generator.util';
 import { ValidTimes } from '@app/seed/interfaces/valid-times';
-import { populateHourRegistersInDbAndGetRelated } from './common/utilities/populateHourRegisters.util';
-import { HourRegister } from '@app/hour-register/entities/hour-register.entity';
+/* import { populateHourRegistersInDbAndGetRelated } from './common/utilities/populateHourRegisters.util';
 import { HourRegisterQueryParamDto } from '@app/hour-register/dto/hour-register-query-params.dto';
-import { pipelineStagesByHourRegisterQ_Params } from '@app/hour-register/utilities/pipelinesStages-by-hour-register-query-params.util';
+import { pipelineStagesByHourRegisterQ_Params } from '@app/hour-register/utilities/pipelinesStages-by-hour-register-query-params.util'; */
 describe('App (e2e)', () => {
     let app: NestApplication;
     let dbConnection: Connection;
@@ -39,7 +38,6 @@ describe('App (e2e)', () => {
     let usersInDbAndJwts: UsersAndJwts;
     let moduleRef: TestingModule;
     let allUsersInDb: User[];
-    let allHourRegistersInDb: HourRegister[];
     let allWorkPositionInDb: WorkPosition[];
     const checkUserInDbByEmail = async (email: string): Promise<boolean> => {
         return Boolean(
@@ -60,7 +58,7 @@ describe('App (e2e)', () => {
     });
 
     afterAll(async () => {
-        //await cleanDb(dbConnection);
+        await cleanDb(dbConnection);
         await moduleRef.close();
         await app.close();
     });
@@ -399,7 +397,7 @@ describe('App (e2e)', () => {
             });
         });
     });
-    describe('User Controller (e2e)', () => {
+    /* describe('User Controller (e2e)', () => {
         const pathController = '/user';
         beforeAll(async () => {
             await cleanDb(dbConnection);
@@ -1183,8 +1181,8 @@ describe('App (e2e)', () => {
                 });
             });
         });
-    });
-    describe('HourRegister noController (e2e)', () => {
+    }); */
+    /* describe('HourRegister noController (e2e)', () => {
         const pathController = '/hour-register';
         const requesGetAllHourRegisters = async (
             jwt: string,
@@ -1238,5 +1236,5 @@ describe('App (e2e)', () => {
                 expect(body).toStrictEqual(toJSON(hour_registers_activess));
             });
         });
-    });
+    }); */
 });

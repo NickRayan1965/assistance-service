@@ -20,7 +20,7 @@ import { HourRegisterUtilities } from '@app/hour-register/utilities/hour-registe
 import { SeedResponse } from './dto/seed-response.dto';
 import { getRandomInt } from '@app/common/utilities/random-int.util';
 import { hourRandomGenerator } from '@app/common/utilities/hour-random-generator.util';
-import { getUserAdminStub } from 'test/e2e/stubs/auth/userAdmin.stub';
+import { getUserAdminStub } from '@app/common/utilities/userAdmin.stub';
 @Injectable()
 export class SeedService {
     private readonly logger = new Logger(SeedService.name);
